@@ -37,4 +37,4 @@ July个人觉得也可以：“比如项目之一，可以先以我博客内部�
 
 ### 联合发起人
 
-July、七月ChatGPT原理课的十几位同学，他们是：..
+July、七月ChatGPT原理课的十几位同学，他们是：@corleytd、@EdwardSelf、@JusticeGL、@wangzaistone、@windspin2003、@zh2nlp..
