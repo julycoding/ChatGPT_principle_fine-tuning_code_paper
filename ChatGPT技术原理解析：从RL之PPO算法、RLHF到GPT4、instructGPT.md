@@ -178,42 +178,59 @@
 
 近端策略优化惩罚PPO-penalty的流程如下
 
-1. 首先，明确目标函数，咱们需要优化$J^{\theta^{\prime}}(\theta)$，让其最大化
-   						$$J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} \mid s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]$$
+1. 首先，明确目标函数，咱们需要优化$`J^{\theta^{\prime}}(\theta)`$，让其最大化
+ ```math
+J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} \mid s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]
+ ```
 
-   『注：如果你想仔细抠接下来各种公式但一上来就被上面这个弄迷糊了，说明还是需要先看下上文说过的这篇[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)，而一旦踏入RL，便得做好两万五千里的准备，当然，**如果只是想了解ChatGPT背后大概的技术原理，可以不用细抠PPO的公式怎么来的，不影响你对ChatGPT整体架构的理解**，且下文会讲其在ChatGPT中是如何运用的』
 
-2. 接下来，先初始化一个策略的参数$\theta$，在每一个迭代里面，我们用前一个训练的迭代得到的actor的参数$\theta$与环境交互，采样到大量状态-动作对， 根据$\theta^{\prime}$交互的结果，估测$A^{\theta^{\prime}}(s_t, a_t)$
+『注：如果你想仔细抠接下来各种公式但一上来就被上面这个弄迷糊了，说明还是需要先看下上文说过的这篇[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)，而一旦踏入RL，便得做好两万五千里的准备，当然，**如果只是想了解ChatGPT背后大概的技术原理，可以不用细抠PPO的公式怎么来的，不影响你对ChatGPT整体架构的理解**，且下文会讲其在ChatGPT中是如何运用的』
 
-3. 由于目标函数牵涉到重要性采样，而在做重要性采样的时候，$p_{\theta}(a_t | s_t)$不能与$p_{\theta^{\prime}}(a_t | s_t)$相差太多，所以需要在训练的时候加个约束，这个约束就好像正则化的项一样，是$\theta$与$\theta^{\prime}$输出动作的 KL散度，用于衡量$\theta$与$\theta^{\prime}$的相似程度，我们希望在训练的过程中，学习出的$\theta$与$\theta^{\prime}$越相似越好
+2. 接下来，先初始化一个策略的参数$`\theta`$，在每一个迭代里面，我们用前一个训练的迭代得到的actor的参数$`\theta`$与环境交互，采样到大量状态-动作对， 根据$`\theta^{\prime}`$交互的结果，估测$`A^{\theta^{\prime}}(s_t, a_t)`$
+
+3. 由于目标函数牵涉到重要性采样，而在做重要性采样的时候，$`p_{\theta}(a_t | s_t)`$不能与$`p_{\theta^{\prime}}(a_t | s_t)`$相差太多，所以需要在训练的时候加个约束，这个约束就好像正则化的项一样，是$`\theta$与$\theta^{\prime}`$输出动作的 KL散度，用于衡量$`\theta`$与$`\theta^{\prime}`$的相似程度，我们希望在训练的过程中，学习出的$`\theta`$与$`\theta^{\prime}`$越相似越好
    所以需要最后使用 PPO 的优化公式：
    
-   ​						$$\begin{aligned} J_{\mathrm{PPO}}^{\theta'}(\theta) = J^{\theta^{\prime}}(\theta) - \beta KL(\theta, \theta^{\prime}) \end{aligned}$$
+   ```math
+   \begin{aligned} J_{\mathrm{PPO}}^{\theta'}(\theta) = J^{\theta^{\prime}}(\theta) - \beta KL(\theta, \theta^{\prime}) \end{aligned}
+   ```
+   
+   
 
 
    当然，也可以把上述那两个公式合二为一『如此可以更直观的看出，PPO-penalty把KL散度约束作为惩罚项放在了目标函数中(可用梯度上升的方法去最大化它)，此举相对TRPO减少了计算量
 
-   ​						$$\begin{aligned} J_{\mathrm{PPO}}^{\theta'}(\theta) = \mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}} \left[ \frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} \mid s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] - \beta KL(\theta, \theta^{\prime}) \end{aligned}$$
+```math
+\begin{aligned} J_{\mathrm{PPO}}^{\theta'}(\theta) = \mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}} \left[ \frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} \mid s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] - \beta KL(\theta, \theta^{\prime}) \end{aligned}
+```
 
-上述流程有一个细节并没有讲到，即$\beta$是怎么取值的呢，事实上，$\beta$是可以动态调整的，故称之为自适应KL惩罚(adaptive KL penalty)，具体而言
 
-- 先设一个可以接受的 KL 散度的最大值$KL_{max}$，假设优化完$J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)$以后，KL 散度值太大导致$\mathrm{KL}(\theta,\theta^{\prime})>\mathrm{KL}_{\max}$，意味着$\theta$与$\theta^{\prime}$差距过大(即学习率/步长过大)，也就代表后面惩罚的项$\beta \mathrm{KL}(\theta ,\theta^{\prime})$惩罚效果太弱而没有发挥作用，故增大惩罚把$\beta$增大
-- 再设一个 KL 散度的最小值$KL_{min}$
-  如果优化完$J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)$以后，KL散度值比最小值还要小导致$\mathrm{KL}(\theta,\theta^{\prime})< {KL}_{\min}$，意味着 $\theta$与$\theta^{\prime}$ 差距过小，也就代表后面这一项$\beta \mathrm{KL}(\theta ,\theta^{\prime})$的惩罚效果太强了，我们怕它只优化后一项，使$\theta$与$\theta^{\prime}$ 一样，这不是我们想要的，所以减小惩罚即减小$\beta$
+
+上述流程有一个细节并没有讲到，即$`\beta`$是怎么取值的呢，事实上，$`\beta`$是可以动态调整的，故称之为自适应KL惩罚(adaptive KL penalty)，具体而言
+
+- 先设一个可以接受的 KL 散度的最大值$`KL_{max}`$，假设优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，KL 散度值太大导致$`\mathrm{KL}(\theta,\theta^{\prime})>\mathrm{KL}_{\max}`$，意味着$`\theta`$与$`\theta^{\prime}`$差距过大(即学习率/步长过大)，也就代表后面惩罚的项$`\beta \mathrm{KL}(\theta ,\theta^{\prime})`$惩罚效果太弱而没有发挥作用，故增大惩罚把$`\beta`$增大
+- 再设一个 KL 散度的最小值$`KL_{min}`$
+  如果优化完$` J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，KL散度值比最小值还要小导致$`\mathrm{KL}(\theta,\theta^{\prime})< {KL}_{\min}`$，意味着 $`\theta$与$\theta^{\prime}`$ 差距过小，也就代表后面这一项$`\beta \mathrm{KL}(\theta ,\theta^{\prime})`$的惩罚效果太强了，我们怕它只优化后一项，使$`\theta$与$\theta^{\prime}`$ 一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
 
 总之，近端策略优化惩罚可表示为
 
-​						$$\begin{aligned} J_{\text{PPO}}^{\theta'}(\theta)=J^{\theta'}(\theta)-\beta \text{KL}\left(\theta, \theta'\right) \end{aligned}$$
+````math
+\begin{aligned} J_{\text{PPO}}^{\theta'}(\theta)=J^{\theta'}(\theta)-\beta \text{KL}\left(\theta, \theta'\right) \end{aligned}
+````
 
-
-
-​						$$\begin{aligned} J^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta'}\left(a_{t} \mid s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right)\end{aligned}$$
+```math
+\begin{aligned} J^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta'}\left(a_{t} \mid s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right)\end{aligned}
+```
 
 
 
 当然，如果觉得计算 KL散度很复杂，则还有一个PPO2算法，即近端策略优化裁剪PPO-clip，包括PPO算法的一个简单实现，均详见[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)一文
 
-​						$$\begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}$$
+```math
+\begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}
+```
+
+​	
 
 
 > PPO算法是一种具体的Actor-Critic算法实现，比如在对话机器人中，输入的prompt是state，输出的response是action，想要得到的策略就是怎么从prompt生成action能够得到最大的reward，也就是拟合人类的偏好。具体实现时，可以按如下两大步骤实现
@@ -230,13 +247,11 @@
 >
 > * 之后是参数更新部分，利用 Experience 计算价值损失(value loss)和策略损失(policy loss)
 >
+>     ![](assets/images/chatpt_principle/bd6e7b452a10424eab899855dd4eec9a.png)
 >   
+> 
 >   
->   ![](assets/images/chatpt_principle/bd6e7b452a10424eab899855dd4eec9a.png)
->   
->   
->
-> 更多请参见[强化学习极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)的最后一小节4.4.3节... 
+>   更多请参见[强化学习极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)的最后一小节4.4.3节... 
 
 ## 1.2 模仿学习(逆强化学习)思路下的RLHF：从人类反馈中学习
 
@@ -318,11 +333,15 @@
    所谓微调，即指当我们预训练出一个语言模型后，为了更好的让它完成咱们手头上的任务，会通过一定的样例/样本对该模型的参数做一定的调整或适配
 
  2. 训练一个奖励函数(下文会详述reward的这个损失函数，这里暂且做个粗略理解，即相当于reward不再是人直接给了，而是用高质量标注训练一个好的reward模型)
-      $$loss(r_\theta) = -E_{(x,y_0,y_1,i)\sim D}[log( \sigma (r_\theta(x, y_i) - r_\theta(x, y_{1-i}))]$$
+```math
+loss(r_\theta) = -E_{(x,y_0,y_1,i)\sim D}[log( \sigma (r_\theta(x, y_i) - r_\theta(x, y_{1-i}))]
+```
 
 
  3. 有了reward，接下来便可以通过PPO优化模型的策略(下文也会详细阐述这个公式)
-      $$R(x, y) = r_\theta (x, y) - \beta log\left [ \pi _{\phi}^{RL}(y|x)/\pi _{}^{SFT}(y|x) \right ]$$
+```math
+R(x, y) = r_\theta (x, y) - \beta log\left [ \pi _{\phi}^{RL}(y|x)/\pi _{}^{SFT}(y|x) \right ]
+```
 
 
 # 第二部分 从GPT/GPT2/GPT3到GPT3.5/GPT4：微调到prompt学习的过渡
@@ -362,7 +381,7 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 ![](assets/images/chatpt_principle/61a6cc2a71dd2e3b126ff058cd5d045e.png)
 
 不过，与原始的Transformer Decoder相比，GPT所用的结构删除了Encoder-Decoder Attention，只保留了多头注意力层Multi-Head Attention层和前馈神经网络Feed forward层，最后再加上求和与归一化的前置LN层 + 残差
-通过这样的结构，GPT便可以利用无标注的自然语言数据进行训练：根据给定的前$i - 1$个token，预测第 $i$ 个token，训练过程中使用的是基于最大似然估计的损失函数，即让模型预测的概率分布尽可能接近实际下一个单词的分布
+通过这样的结构，GPT便可以利用无标注的自然语言数据进行训练：根据给定的前$`i - 1`$个token，预测第 $`i`$ 个token，训练过程中使用的是基于最大似然估计的损失函数，即让模型预测的概率分布尽可能接近实际下一个单词的分布
 
 ![](assets/images/chatpt_principle/1831052632dbed6050771e49dd341516.png)
 
@@ -372,13 +391,13 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 
 ### 2.1.2 什么是Self-Attention与Masked Self-Attention
 
-所谓自注意力，即指当我们需要用到自注意力编码单词$X_1,X_2,X_3,X_4$的时候，会按下面几个步骤依次处理(配图来自[此文](https://jalammar.github.io/illustrated-gpt2/))
+所谓自注意力，即指当我们需要用到自注意力编码单词$`X_1,X_2,X_3,X_4`$的时候，会按下面几个步骤依次处理(配图来自[此文](https://jalammar.github.io/illustrated-gpt2/))
 
-1. 为每个单词路径创建Query、Key、Value，具体做法就是每个单词的表示向量和对应的权重矩阵$(W^Q, W^K, W^V)$做矩阵乘法
+1. 为每个单词路径创建Query、Key、Value，具体做法就是每个单词的表示向量和对应的权重矩阵$`(W^Q, W^K, W^V)`$做矩阵乘法
 
 ![](assets/images/chatpt_principle/452ba38d4bf44c7aafc14e44933e2239.png)
 
-2. 对于每个输入token，使用其Query向量对其他所有的token的Key向量进行评分，获得注意力分数，比如通过$X_1$的$q_1$向量，分别与$X_1,X_2,X_3,X_4$的$k_1,k_2,k_3,k_4$向量分别做点乘，最终得到$X_1$在各个单词$X_1,X_2,X_3,X_4$上的注意力分数：20% 10% 50% 20%
+2. 对于每个输入token，使用其Query向量对其他所有的token的Key向量进行评分，获得注意力分数，比如通过$`X_1`$的$`q_1`$向量，分别与$`X_1,X_2,X_3,X_4`$的$`k_1,k_2,k_3,k_4`$向量分别做点乘，最终得到$`X_1`$在各个单词$`X_1,X_2,X_3,X_4`$上的注意力分数：20% 10% 50% 20%
    
    ![](assets/images/chatpt_principle/a7ff56efd16a42999498d25db1751f1a.png)
    
@@ -467,21 +486,21 @@ GPT3简单来说，就是规模大、有钱多金、效果出奇好，具体而�
 
 零样本下 模型没法通过样本去学习/修正，但即便是少样本下，也有工作试图证明In Context Learning并没有从样本中学习，比如“Rethinking the Role of Demonstrations: What Makes In-Context Learning Work?”，它发现了：
 
-1. 在提供给LLM的样本示例$<x_i, y_i>$中，$y_i$是否是$x_i$对应的正确答案其实并不重要，如果我们把正确答案$y_i$替换成随机的另外一个答案$y_j$，这并不影响In Context Learning的效果
+1. 在提供给LLM的样本示例$`<x_i, y_i>`$中，$`y_i`$是否是$`x_i`$对应的正确答案其实并不重要，如果我们把正确答案$`y_i`$替换成随机的另外一个答案$`y_j`$，这并不影响In Context Learning的效果
 
    比如下图中，无论是分类任务(图中上部分)，还是多项选择任务(图中下部分)，随机标注设置下(红)模型表现均和正确标注(黄)表现相当，且明显超过没有in-context样本的zero-shot设置(蓝)
    
    ![](assets/images/chatpt_principle/f9a531cf142446c9bb594d14bd9d9df0.png)
    
 
-   这起码说明了一点：In Context Learning并没有提供给LLM那个从$x$映射到$y$的映射函数信息：$y = f(x)$，否则的话你乱换正确标签，肯定会扰乱这个$y = f(x)$ 映射函数，也就是说，In Context Learning并未学习这个输入空间到输出空间的映射过程
+   这起码说明了一点：In Context Learning并没有提供给LLM那个从$`x`$映射到$`y`$的映射函数信息：$`y = f(x)`$，否则的话你乱换正确标签，肯定会扰乱这个$`y = f(x)`$ 映射函数，也就是说，In Context Learning并未学习这个输入空间到输出空间的映射过程
 
-2. 真正对In Context Learning影响比较大的是：$x$和$y$的分布，也就是输入文本 $x$ 的分布和候选答案 $y$  有哪些，如果你改变这两个分布，比如把 $y$ 替换成候选答案之外的内容，则In Context Learning效果急剧下降
+2. 真正对In Context Learning影响比较大的是：$`x`$和$`y`$的分布，也就是输入文本 $`x`$ 的分布和候选答案 $`y`$  有哪些，如果你改变这两个分布，比如把 $`y`$ 替换成候选答案之外的内容，则In Context Learning效果急剧下降
    总之，**这个工作证明了In Context Learning并未学习映射函数，但是输入和输出的分布很重要**，这两个不能乱改(此部分 待后续23年5月份进一步补充完善)
 
-有些工作认为LLM还是从给出的示例学习了这个映射函数 $y=f(x)$，不过是种隐式地学习
+有些工作认为LLM还是从给出的示例学习了这个映射函数 $`y=f(x)`$，不过是种隐式地学习
 
-- 比如“What learning algorithm is in-context learning? Investigations with linear models”认为Transformer能够隐式地从示例中学习 $x$ 到 $y$ 的映射过程，它的激活函数中包含了一些简单映射函数，而LLM通过示例能够激发对应的那一个
+- 比如“What learning algorithm is in-context learning? Investigations with linear models”认为Transformer能够隐式地从示例中学习 $`x`$ 到 $`y`$ 的映射过程，它的激活函数中包含了一些简单映射函数，而LLM通过示例能够激发对应的那一个
 - 而“Why Can GPT Learn In-Context? Language Models Secretly Perform Gradient Descent as Meta-Optimizers”这篇文章则将ICL看作是一种隐式的Fine-tuning
 
 ## 2.4 Prompt技术的升级与创新：指令微调技术(IFT)与思维链技术(CoT)
@@ -603,9 +622,9 @@ OpenAI的GPT3虽然不再微调模型(pre-training + prompt)，但Google依然�
   text-davinci-003恢复了一些在text-davinci-002中丢失的部分上下文学习能力(比如在微调的时候混入了语言建模) 并进一步改进了零样本能力(得益于RLHF，生成更加符合人类期待的反馈或者说模型与人类对齐)
 
   至于ChatGPT则更不用说了，其对应的API为**gpt-3.5-turbo**(由23年3.2日OpenAI最新发布)
-   $\rightarrow$
+   $`\rightarrow`$
    代码/推理能力强大，考虑到Codex学习了大量的开源代码，由此是不也能理解为何ChatGPT具备那么强大的编码及debug能力了，且训练代码中包含不少解决数学问题的代码，加上对代码注释的学习(基于一些代码和代码描述的样式/范例使用类似CoT这样的技术学习)，是不是也就能学会代码背后的推理能力呢
-   $\rightarrow$ 而且理解人类的能力前所未有
+   $`\rightarrow`$ 而且理解人类的能力前所未有
 
 ## 2.6 ChatGPT初版与InstructGPT的差别：基于GPT3还是GPT3.5微调
 
