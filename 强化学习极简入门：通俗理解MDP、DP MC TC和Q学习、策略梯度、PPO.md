@@ -134,13 +134,13 @@ $$P=\begin{bmatrix} P(s_1|s_1) \ P(s_2|s_1) \ P(s_3|s_1) \cdots P(s_n|s_1)&\\ P(
 $$\begin{aligned} V(s) &= E[G_t|S_t=s] \\& = E[R_{t+1} + \gamma G_{t+1}|S_t =s]\\& = E[R_{t+1}|S_t =s] + \gamma E[G_{t+1}|S_t =s]\\& = E[R_{t+1}|S_t = s] + \gamma E[V(S_{t+1})|S_t = s] \end{aligned}$$
 
 在上式最后一个等式中  
-+   前半部分表示当前状态得到的即时奖励$E[R_{t+1}|S_t = s] = R(s)$
++  前半部分表示当前状态得到的即时奖励$E[R_{t+1}|S_t = s] = R(s)$
 +  后半部分表示当前状态得到的所有持久奖励$\gamma E[V(S_{t+1})|S_t = s]$，可以根据从状态s出发的转移概率得到『至于上述推导的最后一步，在于$E[G_{t+1}|S_t = s]$等于$E[V(S_{t+1})|S_t = s)]$』  
 
-   有个别朋友在我维护的Machine Learning读书会群里说，对上述推导最后一步的推导过程有疑问，考虑到本文追求详尽细致，加之大部分资料都是把这个当结论默认的，故还是把这个推导过程详细写一下  
-$$\begin{aligned} E[G_{t+1}|S_t = s] &= \sum G_{t+1}P\left \{ G_{t+1}|S_t = s \right \} \\& = \sum G_{t+1}\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \} \\& = \sum_{s'}^{}\sum G_{t+1}P\left \{ G_{t+1}|S_{t+1} =s',S_t =s \right \}P\left \{ S_{t+1} =s'|S_t =s \right \} \\& = \sum_{s'}^{}E[G_{t+1}|S_{t+1} = s',S_t =s]P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = \sum_{s'}^{}V(S_{t+1})P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = E[V(S_{t+1})|S_t =s] \end{aligned}$$  
-   可能又有同学对上述第二个等式怎么来的又有疑问了，怎么推导呢？我们只需推导出
-$$P\left \{ G_{t+1}|S_t =s \right \} = \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \}$$  
+   有个别朋友在我维护的Machine Learning读书会群里说，对上述推导最后一步的推导过程有疑问，考虑到本文追求详尽细致，加之大部分资料都是把这个当结论默认的，故还是把这个推导过程详细写一下    
+   $$\begin{aligned} E[G_{t+1}|S_t = s] &= \sum G_{t+1}P\left \{ G_{t+1}|S_t = s \right \} \\& = \sum G_{t+1}\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \} \\& = \sum_{s'}^{}\sum G_{t+1}P\left \{ G_{t+1}|S_{t+1} =s',S_t =s \right \}P\left \{ S_{t+1} =s'|S_t =s \right \} \\& = \sum_{s'}^{}E[G_{t+1}|S_{t+1} = s',S_t =s]P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = \sum_{s'}^{}V(S_{t+1})P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = E[V(S_{t+1})|S_t =s] \end{aligned}$$  
+   可能又有同学对上述第二个等式怎么来的又有疑问了，怎么推导呢？我们只需推导出      
+   $$P\left \{ G_{t+1}|S_t =s \right \} = \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \}$$  
 推导过程如下
    $$\begin{aligned} P\left \{ G_{t+1}|S_t=s \right \} &= \frac{P\left \{ G_{t+1},S_t=s \right \}}{P(S_t=s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1},S_{t+1}=s',S_t =s \right \}}{P(S_t =s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s',S_t =s)}{P(S_t =s)}\\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t =s)P(S_t =s)}{P(S_t =s)}\\&= \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t=s) \end{aligned}$$
 
@@ -178,7 +178,7 @@ $$R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25
 > $$v_{s2} = R_{s2} = 7  \\v_{s3} = R_{s3} = 3$$
 > 再根据贝尔曼方程$V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')$，可得状态$s_1$的状态价值函数为
 > $$\begin{aligned} V(s1) &= R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) \\&= 5+ 0.5 \times (0.6\times 7 + 0.4 \times 3) \\&= 7.7 \end{aligned}  $$  
-> 当然，你也可以如此计算(可以很明显的看出，计算量不如上述过程简洁，所以一般优先按上述方式计算)
+> 当然，你也可以如此计算(可以很明显的看出，计算量不如上述过程简洁，所以一般优先按上述方式计算)  
 > $$\begin{aligned} V(s1) &= E[G_t|S_t=s] \\& = p_{12} \times G^{s2}_{s1} + p_{13} \times G^{s3}_{s1} \\& = P_{12} (R_{s1} + \gamma R_{s2}) + P_{13} (R_{s1} + \gamma R_{s3})\\& = 0.6(5 + 0.5\times 7) + 0.4(5+0.5\times 3) \\& = 7.7 \end{aligned}$$
 
 上述例子的状态比较少所以计算量不大，但当状态一多，则贝尔曼方程的计算量还是比较大的，而求解较大规模的马尔可夫奖励过程中的价值函数时，可以用的方法包括：动态规划、蒙特卡洛方法、时序差分(temporal difference，简称TD)方法  
@@ -240,15 +240,15 @@ $$\begin{aligned} Q_\pi (s,a) &= E_\pi [G_t | S_t=s,A_t = a] \\& = E_\pi [R_{t+1
 +   在使用策略$\pi$时，**状态$S$的价值等于在该状态下基于策略$\pi$采取所有动作的概率与相应的价值相乘再求和的结果**
     $$V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a)$$
     
-    我猜可能有读者会问怎么来的，简略推导如下
-    $$\begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = \sum_{a \in A}^{}\pi (a|s)E_\pi [G_t|S_t = s,A_t = a]\\& = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a) \end{aligned}$$
+    我猜可能有读者会问怎么来的，简略推导如下  
+    $$\begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = \sum_{a \in A}^{}\pi (a|s)E_\pi [G_t|S_t = s,A_t = a]\\& = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a) \end{aligned}$$  
     
-+ 而使用策略$\pi$时，在状态$S$下采取动作$a$!的价值等于当前奖励$R(s,a)$，加上经过衰减的所有可能的下一个状态的状态转移概率与相应的价值的乘积  
-  $$Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')$$
-  针对这个公式 大部分资料都会一带而过，但不排除会有不少读者问怎么来的，考虑到**对于数学公式咱们不能想当然靠直觉的自认为**，所以还是得一五一十的推导下  
-  $$\begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}$$
++ 而使用策略$\pi$时，在状态$S$下采取动作$a$!的价值等于当前奖励$R(s,a)$，加上经过衰减的所有可能的下一个状态的状态转移概率与相应的价值的乘积    
+  $$Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')$$  
+  针对这个公式 大部分资料都会一带而过，但不排除会有不少读者问怎么来的，考虑到**对于数学公式咱们不能想当然靠直觉的自认为**，所以还是得一五一十的推导下    
+  $$\begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}$$  
     
-  上述推导过程总共五个等式，其中，第三个等式到第四个等式依据的是
+  上述推导过程总共五个等式，其中，第三个等式到第四个等式依据的是  
   $$E[ G_{t+1} | S_t =s,A_t = a] = \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ]$$
   至于第四个等式到第五个等式依据的是状态转移概率矩阵的定义  
   $$P_{ss'}^{a} = P(S_{t+1}=s'|S_t =s,A_t = a)$$
@@ -329,8 +329,7 @@ $$Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)\left [ \sum_{a' \in 
     $$Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')$$
 2.  当$a= argmax \left \{ Q_*(s,a) \right \}$时，$\pi _*(a|s) = 1$
 
-综合上述两点，可得
-
+综合上述两点，可得  
 $$v_{*}(s) = max \left \{ R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')) \right \}$$
 
 另，考虑到
@@ -381,13 +380,13 @@ $$\int_{a}^{b}f(x)dx = \lim_{N\rightarrow \propto } \frac{1}{N}(b-a)\sum_{i-1}^{
 
 2.   且考虑到对于连续随机变量$X$，其概率密度函数为$p(x)$，
 期望为$E[X] = \int_{-\propto }^{\propto }xp(x)dx$,
-则有
-$$\int_{a}^{b}f(x)dx = \int_{a}^{b}f^*(x)q(x)dx = E_{x\sim f_{X}(x)}[f^*(x)]]$$
-跟蒙特卡洛方法关联的还有一个重要性采样，不过，暂不急，在第四部分时用到再讲.
+则有  
+$$\int_{a}^{b}f(x)dx = \int_{a}^{b}f^*(x)q(x)dx = E_{x\sim f_{X}(x)}[f^*(x)]]$$  
+跟蒙特卡洛方法关联的还有一个重要性采样，不过，暂不急，在第四部分时用到再讲.  
 
 ## 2.3 时序差分法及与DP、MC的区别
 
-当面对状态价值函数的求解时
+当面对状态价值函数的求解时   
 
 $$\begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = E_\pi [R_{t+1} + \gamma G_{t+1} | S_t = s] \\& = E_\pi [R_{t+1} + \gamma V_\pi (S_{t+1}) | S_t = s] \end{aligned}$$
 
@@ -425,11 +424,11 @@ $$\begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = E_\pi [R_{t+1} + \gamm
 
 为承上启下更为总结，再说一个问题，即七月ChatGPT课群里有学问提问：校长 在A2C算法中，这个优势函数中的计算$A(s,a) =Q(s,a) - V(s)$ 其中这个$Q(s,a)$和$V(s)$是由神经网络模拟出来的吗
 
-> 关于什么是优势函数 下文会具体阐述，咱们就用上文的知识来一步步推导  
-> 因
+> 关于什么是优势函数 下文会具体阐述，咱们就用上文的知识来一步步推导    
+> 因  
 > $$\begin{aligned}G_t &= R_{t+1} + \gamma \cdot R_{t+2}+ \gamma ^2\cdot R_{t+3} + \gamma ^3\cdot R_{t+4}+\cdots \\&= R_{t+1} + \gamma (R_{t+2}+ \gamma \cdot R_{t+3} + \gamma ^2\cdot R_{t+4}+\cdots) \\&= R_{t+1} + \gamma G_{t+1} \end{aligned}$$
 > 
-> 且
+> 且  
 > $$\begin{aligned} P\left \{ G_{t+1}|S_t=s \right \} &= \frac{P\left \{ G_{t+1},S_t=s \right \}}{P(S_t=s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1},S_{t+1}=s',S_t =s \right \}}{P(S_t =s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s',S_t =s)}{P(S_t =s)}\\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t =s)P(S_t =s)}{P(S_t =s)}\\&= \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t=s) \end{aligned}$$
 > 
 > $故G_t =R_{t+1} + \gamma * V_{t+1}$，而这就是Q  
