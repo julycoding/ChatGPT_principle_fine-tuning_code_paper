@@ -268,11 +268,11 @@ J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\the
 
 - [Fine-Tuning Language Models from Human Preferences(Zieglar et al. 2019)](https://arxiv.org/pdf/1909.08593.pdf)
 
-  在Reward model的训练中，我们需要人的参与，human labelers给policy模型生成的文本打分，这个分数作为reward model学习的标签
+  在Reward model的训练中，我们需要人的参与，human labelers给policy模型生成的文本进行选择「比如在四个答案选项(y0，y1，y2，y3)中选择一个最好的」，这个选择作为reward model学习的标签
 
   ![](assets/images/chatpt_principle/6ce3da16ad6b41c998ee25b8aca3fa75.png)
 
-  Reward mode训练好后，那么在训练policy model时，Reward model便可以完全取代human labeler打分，分数作为信号传给policy model，再利用OpenAI默认的策略优化算法PPO来训练
+  Reward mode训练好后，那么在训练policy model时，Reward model便可以完全取代human labeler选择，这种基于偏好的选择作为信号传给policy model，再利用OpenAI默认的策略优化算法PPO来训练
 
   ![](assets/images/chatpt_principle/6ce3da16ad6b41c998ee25b8aca3fa75.png)
 - [Learning to summarize with human feedback(Stiennon et al., 2020)](https://arxiv.org/pdf/2009.01325.pdf)
@@ -290,7 +290,7 @@ J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\the
 loss(r_\theta) = -E_{(x,y_0,y_1,i)\sim D}[log( \sigma (r_\theta(x, y_i) - r_\theta(x, y_{1-i}))]
 ```
 
-  3. 有了reward，接下来便可以通过PPO优化模型的策略(下文也会详细阐述这个公式)
+  3. 有了reward，接下来便可以通过PPO优化模型的策略，且为避免RM过于绝对，还给RM加了个\beta惩罚项(下文会详细阐述这个公式)
 ```math
 R(x, y) = r_\theta (x, y) - \beta log\left [ \pi _{\phi}^{RL}(y|x)/\pi _{}^{SFT}(y|x) \right ]
 ```
@@ -752,7 +752,7 @@ InstructGPT这篇论文吧，对大家实在是太友好了，友好到全篇论
 \begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'} (x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
 ```
 
-$`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\phi }^{RL}`$』更新之前的旧策略，为何呢？考虑到大部分文章在分析上面的目标函数时基本都是人云亦云、一带而过，故再逐一拆接下这个目标函数，分为三个部分
+$`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\phi }^{RL}`$』更新之前的旧策略，为何呢？考虑到大部分文章在分析上面的目标函数时基本都是人云亦云、一带而过，故再逐一拆解下这个被一次展开后的目标函数，分为三个部分
 
 1. <font color="red">第一部分</font>是$`r_{\theta '}(x,y)`$，相当于阶段2中根据人类偏好学习出来的RM模型「所以你便会看到这里的$`objective(\phi)`$中只有一个$`r_{\theta '}(x,y)`$，而不是再通过比较排序再训练$`r_{\theta '}(x,y)`$，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，从而基于“最大化奖励”这个目标下不断优化PPO模型的策略$`\pi ^{RL'}`$(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
 2. <font color="red">第二部分</font>则是用KL散度对比RL在最大化RM的目标下学到的策略$`\pi ^{RL'}`$和基线策略$`\pi ^{SFT}`$的差距，一开始时，$`\pi ^{RL'}`$的初始化值就是$`\pi ^{SFT}`$，最终希望$`\pi ^{RL'}`$最终迭代结束后，它俩之间的差距不至于太大
