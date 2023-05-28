@@ -754,22 +754,9 @@ InstructGPT这篇论文吧，对大家实在是太友好了，友好到全篇论
 
 $`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\phi }^{RL}`$』更新之前的旧策略，为何呢？考虑到大部分文章在分析上面的目标函数时基本都是人云亦云、一带而过，故再逐一拆解下这个被一次展开后的目标函数，分为三个部分
 
-1. <font color="red">第一部分</font>是$`r_{\theta '}(x,y)`$，相当于阶段2中根据人类偏好学习出来的RM模型「所以你便会看到这里的$`objective(\phi)`$中只有一个$`r_{\theta '}(x,y)`$，而不是再通过比较排序再训练$`r_{\theta '}(x,y)`$，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，从而基于“最大化奖励”这个目标下不断优化PPO模型的策略$`\pi ^{RL'}`$(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
-2. <font color="red">第二部分</font>则是用KL散度对比RL在最大化RM的目标下学到的策略$`\pi ^{RL'}`$和基线策略$`\pi ^{SFT}`$的差距，一开始时，$`\pi ^{RL'}`$的初始化值就是$`\pi ^{SFT}`$，最终希望$`\pi ^{RL'}`$最终迭代结束后，它俩之间的差距不至于太大
+1. <font color="red">第一部分是：E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'} (x,y)\right]</font>
 
-   怎么避免它两相差太多呢？可以类似PPO算法那样，通过KL散度衡量两个策略的概率分布之间的差距，从而使得咱们_在优化策略时限制参数更新的范围_)
-```math
-   \begin{aligned}J_{\mathrm{PPO}}^{\theta'}(\theta)=\mathbb{E}_{(s_t,a_t)\sim\pi_{\theta'}}\left[\frac{p_\theta\left(a_t\mid s_t\right)}{p_{\theta'}\left(a_t\mid s_t\right)}A^{\theta'}\left(s_t,a_t\right)\right] \beta\mathrm{KL}\left(\theta,\theta^{\prime}\right)\end{aligned}
-```
-
-   好，接下来，重点来了，对于这前两部分，若简言之，$`\pi_{\phi}^{RL}/\mathcal{\pi}^{RL'}`$与PPO算法表达式中的$`\theta /\theta '`$一一对应，比如与环境交互的$`\theta '`$等同于旧策略$`\pi ^{RL'}`$，但具体而言，则有以下4点
-
-   **①**已经掌握人类偏好的RM模型一旦判定现有回答的不够好，便得更新$`\pi_{\phi}^{RL}`$，但如果$`\pi_{\phi}^{RL}`$一旦变化，会导致后续$`\bar{R}_{\theta}=\mathbb{E}_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]`$计算一系列问答评分时中的$`p_\theta (\tau )`$发生变化(策略一变轨迹必变)，进而已采样的问答数据$`(x_{n+2},\left \{ y_{n+2}^{1},y_{n+2}^{2},y_{n+2}^{3},y_{n+2}^{4} \right \})(x_{n+3},\cdots )(x_{n+4},\cdots )(x_{n+5},\cdots )`$便没法继续使用，而只能不断采样一批批新的问答数据(更新一次$`\pi_{\phi}^{RL}`$后，得采样新一批数据；再更新一次$`\pi_{\phi}^{RL}`$后，再采样新一批数据..)
-
-   **②**为避免$`\pi_{\phi}^{RL}`$只要一更新便只能一次次去采样一批批新问答数据
-   说白了，为了提高数据利用率，我们改让$`\pi ^{RL'}`$去和环境交互『$`\pi ^{RL'}`$也被$`\pi^{SFT}`$初始化，且基于重要性采样的原则 增加重要性权重』
-   然后通过最大化奖励而不断迭代$`\pi ^{RL'}`$(相当于在策略$`\pi ^{RL'}`$下模型回答的好不好始终由RM模型评判)，迭代过程中可一定程度的重复使用旧策略$`\pi ^{RL'}`$生成的已有数据反复验证(注意这里的用词：一定程度的重复使用，就像蓄水池一样，提高水资源的利用率，但会适时更新)
-
+由于在上文的instructGPT训练阶段2中，我们已经得到了根据人类偏好学习出来的RM模型「所以你便会看到这里的中只有一个，而不是再通过比较排序再训练，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，便可基于“最大化奖励”这个目标下通过PPO算法不断优化RL模型(或也可以叫PPO模型)的策略(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
    ---
 
    考虑到有些读者对这一块 还是有些疑惑，故再补充说明下
@@ -808,16 +795,30 @@ objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
 \begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} [\frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'}(x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} A^{\theta^{RL'}}\left(x,y\right),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{RL'}}\left(x,y\right)\right) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
 ```
 
-   且慢，上述公式第二行基于当前(旧)策略的RM最大化，故$`r(x,y)`$的参数是$`\theta ^{\prime}`$而非$`\theta`$ 能理解，然后拆开成第三行，大中括号里前面的部分也好理解：限制更新前后两个新旧策略的比值大小(相当于限制新策略的更新范围)，但大中括号里后面的部分中再加个$`\beta`$惩罚项是何意？下文马上具体阐述
+   且慢，上述公式第二行基于当前(旧)策略的RM最大化，故$`r(x,y)`$的参数是$`\theta ^{\prime}`$而非$`\theta`$ 能理解，然后拆开成第三行，大中括号里前面的部分也好理解：限制更新前后两个新旧策略的比值大小(相当于限制新策略的更新范围)，但大中括号里后面的部分中再加的$`\beta`$惩罚项是何意？下文马上具体阐述
 
    ---
 
-   **③**迭代中我们追求整个目标函数$`objective(\phi)`$最大化，自然实时优化中的当前(旧)策略『$`\pi(RL')`$』与基线策略$`\pi(SFT)`$的差距，即KL散度约束的$`\beta log(\pi^{RL'}(y|x)/\pi ^{SFT}(y|x))`$最小『这也是 $`objective(\phi)`$中唯一的KL散度约束，而KL散度越小代表两个策略之间的差距越小』
+2. <font color="red">第二部分是带\beta的惩罚项：\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )</font>
+
+其作用是通过KL散度对比RL在最大化RM的目标下学到的策略\pi^{RL'}和基线策略\pi^{SFT}的差距，一开始时，\pi^{RL'}的初始化值就是\pi^{SFT}，最终希望\pi^{RL'}最终迭代结束后，它俩之间的差距不至于太大
+
+   怎么避免它两相差太多呢？可以通过KL散度衡量两个策略的概率分布之间的差距，从而使得咱们在优化策略时限制参数更新的范围)，注意，这个KL散度和PPO已经没有关系了，只是一个KL散度约束的普通应用
+
+   好，接下来，重点来了，对于这前两部分，若简言之，$`\pi_{\phi}^{RL}/\mathcal{\pi}^{RL'}`$与PPO算法表达式中的$`\theta /\theta '`$一一对应，比如与环境交互的$`\theta '`$等同于旧策略$`\pi ^{RL'}`$，但具体而言，则有以下4点
+
+   **①**已经掌握人类偏好的RM模型一旦判定现有回答的不够好，便得更新$`\pi_{\phi}^{RL}`$，但如果$`\pi_{\phi}^{RL}`$一旦变化，会导致后续$`\bar{R}_{\theta}=\mathbb{E}_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]`$计算一系列问答评分时中的$`p_\theta (\tau )`$发生变化(策略一变轨迹必变)，进而已采样的问答数据$`(x_{n+2},\left \{ y_{n+2}^{1},y_{n+2}^{2},y_{n+2}^{3},y_{n+2}^{4} \right \})(x_{n+3},\cdots )(x_{n+4},\cdots )(x_{n+5},\cdots )`$便没法继续使用，而只能不断采样一批批新的问答数据(更新一次$`\pi_{\phi}^{RL}`$后，得采样新一批数据；再更新一次$`\pi_{\phi}^{RL}`$后，再采样新一批数据..)
+
+   **②**为避免$`\pi_{\phi}^{RL}`$只要一更新便只能一次次去采样一批批新问答数据
+   说白了，为了提高数据利用率，我们改让$`\pi ^{RL'}`$去和环境交互『$`\pi ^{RL'}`$也被$`\pi^{SFT}`$初始化，且基于重要性采样的原则 增加重要性权重』
+   然后通过最大化奖励而不断迭代$`\pi ^{RL'}`$(相当于在策略$`\pi ^{RL'}`$下模型回答的好不好始终由RM模型评判)，迭代过程中可一定程度的重复使用旧策略$`\pi ^{RL'}`$生成的已有数据反复验证(注意这里的用词：一定程度的重复使用，就像蓄水池一样，提高水资源的利用率，但会适时更新)
+
+   **③**迭代中我们追求整个目标函数$`objective(\phi)`$最大化，自然要求“ 实时优化中的当前(旧)策略π(RL')与基线策略π(SFT)的差距『即KL散度约束的\beta log(\pi^{RL'}(y|x)/\pi ^{SFT}(y|x))』”最小，这也是 $`objective(\phi)`$中唯一的KL散度约束，而KL散度越小代表两个策略之间的差距越小
+
+  且针对我们的目标函数三次展开之后，得到4行
 ```math
 \begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'}(x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} r_{\theta'}(x,y),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) r_{\theta'}(x,y)\right) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})]\\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} A^{\theta^{RL'}}\left(x,y\right),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{RL'}}\left(x,y\right)\right) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
 ```
-
-   再解释下这个目标函数，总共4行
 
    首先，第二行大中括号里后面的部分 再加个$`\beta`$惩罚项的用意是什么呢？instructGPT原始论文中是这么说的，“**In addition, we add a per-token KL penalty from the SFT model at each token to mitigate overoptimization of the reward model**”
    言外之意，由于在当前(旧)策略下的生成/预测结果由裁判RM评判(别忘了 当前策略优化的目的就是为了让RM最大化)，而凡事没有绝对，所以对优化策略的过程中加了一个惩罚项，防止一切RM说了算进而过于绝对变成独裁，相当于避免不断优化的当前策略与基线策略偏离太远
