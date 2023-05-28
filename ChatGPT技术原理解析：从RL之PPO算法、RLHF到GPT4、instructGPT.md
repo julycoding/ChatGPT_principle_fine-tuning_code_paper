@@ -754,9 +754,10 @@ InstructGPT这篇论文吧，对大家实在是太友好了，友好到全篇论
 
 $`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\phi }^{RL}`$』更新之前的旧策略，为何呢？考虑到大部分文章在分析上面的目标函数时基本都是人云亦云、一带而过，故再逐一拆解下这个被一次展开后的目标函数，分为三个部分
 
-1. <font color="red">第一部分是：E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'} (x,y)\right]</font>
+1. <font color="red">第一部分是</font>：$`E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'} (x,y)\right]`$
 
-由于在上文的instructGPT训练阶段2中，我们已经得到了根据人类偏好学习出来的RM模型「所以你便会看到这里的中只有一个，而不是再通过比较排序再训练，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，便可基于“最大化奖励”这个目标下通过PPO算法不断优化RL模型(或也可以叫PPO模型)的策略(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
+   由于在上文的instructGPT训练阶段2中，我们已经得到了根据人类偏好学习出来的RM模型「所以你便会看到这里的中只有一个，而不是再通过比较排序再训练，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，便可基于“最大化奖励”这个目标下通过PPO算法不断优化RL模型(或也可以叫PPO模型)的策略(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
+
    ---
 
    考虑到有些读者对这一块 还是有些疑惑，故再补充说明下
@@ -799,9 +800,9 @@ objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
 
    ---
 
-2. <font color="red">第二部分是带\beta的惩罚项：\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )</font>
+2. <font color="red">第二部分是带$`\beta`$的惩罚项：$`\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )`$</font>
 
-其作用是通过KL散度对比RL在最大化RM的目标下学到的策略\pi^{RL'}和基线策略\pi^{SFT}的差距，一开始时，\pi^{RL'}的初始化值就是\pi^{SFT}，最终希望\pi^{RL'}最终迭代结束后，它俩之间的差距不至于太大
+其作用是通过KL散度对比RL在最大化RM的目标下学到的策略$`\pi^{RL'}`$和基线策略$`\pi^{SFT}`$的差距，一开始时，$`\pi^{RL'}`$的初始化值就是$`\pi^{SFT}`$，最终希望$`\pi^{RL'}`$最终迭代结束后，它俩之间的差距不至于太大
 
    怎么避免它两相差太多呢？可以通过KL散度衡量两个策略的概率分布之间的差距，从而使得咱们在优化策略时限制参数更新的范围)，注意，这个KL散度和PPO已经没有关系了，只是一个KL散度约束的普通应用
 
@@ -813,7 +814,7 @@ objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
    说白了，为了提高数据利用率，我们改让$`\pi ^{RL'}`$去和环境交互『$`\pi ^{RL'}`$也被$`\pi^{SFT}`$初始化，且基于重要性采样的原则 增加重要性权重』
    然后通过最大化奖励而不断迭代$`\pi ^{RL'}`$(相当于在策略$`\pi ^{RL'}`$下模型回答的好不好始终由RM模型评判)，迭代过程中可一定程度的重复使用旧策略$`\pi ^{RL'}`$生成的已有数据反复验证(注意这里的用词：一定程度的重复使用，就像蓄水池一样，提高水资源的利用率，但会适时更新)
 
-   **③**迭代中我们追求整个目标函数$`objective(\phi)`$最大化，自然要求“ 实时优化中的当前(旧)策略π(RL')与基线策略π(SFT)的差距『即KL散度约束的\beta log(\pi^{RL'}(y|x)/\pi ^{SFT}(y|x))』”最小，这也是 $`objective(\phi)`$中唯一的KL散度约束，而KL散度越小代表两个策略之间的差距越小
+   **③**迭代中我们追求整个目标函数$`objective(\phi)`$最大化，自然要求“ 实时优化中的当前(旧)策略π(RL')与基线策略π(SFT)的差距『即KL散度约束的$`\beta log(\pi^{RL'}(y|x)/\pi ^{SFT}(y|x))`$』”最小，这也是 $`objective(\phi)`$中唯一的KL散度约束，而KL散度越小代表两个策略之间的差距越小
 
   且针对我们的目标函数三次展开之后，得到4行
 ```math
@@ -825,9 +826,13 @@ objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
 
    ![img](assets/images/chatpt_principle/2805e9b3b99e4fe99f27881c9c188cb7.png)
 
-   其次，实际代码实现时，把后面的惩罚项融入进了优势函数$`A^{\theta^{RL'}}\left(x,y\right)`$中，即(至于为何是近似，因为还有一些表达项没体现出来 需要进一步展开，其具体展开可以看下下面马上要提到的微软DeepSpeed Chat的实现)
+   至于这个$`\beta`$怎么取值的，虽然instructGPT论文中没有透露太多细节，但上文第一部分提到的这篇2019年的论文《Fine-Tuning Language Models from Human Preferences》中有提到，$`\beta`$可以如下取值
+
+   ![](assets/images/chatpt_principle/73a3355e59244315b827dfc1062c2b68.png)
+
+   其次，如第四行所示，实际代码实现时，把后面的惩罚项融入进了优势函数$`A^{\theta^{RL'}}\left(x,y\right)`$中，即(之所以是近似，是因为还有一些项没体现 只是简写，具体展开可以看下马上要提到的微软DeepSpeed Chat的实现)
 ```math
-\mathrm{A}(\mathrm{x}, \mathrm{y}) \approx \mathrm{r}(\mathrm{x}, \mathrm{y})-\beta \log \left[\frac{\pi^{\mathrm{RL'}}(\mathrm{y} \mid \mathrm{x})}{\pi^{\mathrm{SFT}}(\mathrm{y} \mid \mathrm{x})}\right]
+\mathrm{A}(\mathrm{x}, \mathrm{y}) \approx \mathrm{r}(\mathrm{x}, \mathrm{y})-\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) + \gamma V_{\pi }(s_{t+1}) - V_\pi (s)
 ```
 
    而如果忘了KL散度公式的具体表达或者忘了怎么推导而来的，可以看下[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)关于TRPO的部分
@@ -836,6 +841,7 @@ objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
 ```
 
    **④**直到$`\pi^{RL'}`$迭代出最优策略
+
 3. <font color="red">第三部分</font>是加在最后边的偏置项，其中， $`D_{pretrain}`$是GPT3的预训练数据分布，预训练损失系数$`\gamma`$控制预训练梯度的强度，且$`\gamma`$设置为0则称为PPO模型，否则称为PPO-ptx模型
 
    之所以加最后的这个偏置项，是防止ChatGPT在训练过程中过度优化，从而避免过于放飞自我，通过某种刁钻的方式取悦人类，而不是老老实实地根据人类的问题给出正确答案
