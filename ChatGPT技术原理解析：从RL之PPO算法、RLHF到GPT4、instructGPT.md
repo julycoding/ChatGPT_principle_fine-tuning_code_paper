@@ -826,11 +826,15 @@ objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
 
    ![img](assets/images/chatpt_principle/2805e9b3b99e4fe99f27881c9c188cb7.png)
 
-   至于这个$`\beta`$怎么取值的，虽然instructGPT论文中没有透露太多细节，但上文第一部分提到的这篇2019年的论文《Fine-Tuning Language Models from Human Preferences》中有提到，$`\beta`$可以如下取值
+   至于对RM惩罚的这个$`\beta`$怎么取值的，虽然instructGPT论文中没有透露太多细节，但上文第一部分提到的这篇2019年的论文《Fine-Tuning Language Models from Human Preferences》 『也是本博客内另一篇文章“[ChatGPT与多模态必读论文100篇](https://blog.csdn.net/v_JULY_v/article/details/129508065)”中提到的，另这是论文对应的代码：[微调GPT2](https://github.com/openai/lm-human-preferences)』中有提到，$`\beta`$可以如下图右下角所示的动态取值
 
-   ![](assets/images/chatpt_principle/73a3355e59244315b827dfc1062c2b68.png)
+   ![](assets/images/chatpt_principle/6505c4bd9e3b4d2d94df645f147597c5.png)
 
-   其次，如第四行所示，实际代码实现时，把后面的惩罚项融入进了优势函数$`A^{\theta^{RL'}}\left(x,y\right)`$中，即(之所以是近似，是因为还有一些项没体现 只是简写，具体展开可以看下马上要提到的微软DeepSpeed Chat的实现)
+   更多训练细节还可以看下instructGPT论文原文
+
+   ![](assets/images/chatpt_principle/dcf2240f8a56451089a314ffe0c6fc08.png)
+
+   其次，如第四行所示，实际代码实现时，把后面的$`\beta`$惩罚项融入进了优势函数$`A^{\theta^{RL'}}\left(x,y\right)`$中，即(之所以是近似，是因为还有一些项没体现 只是简写，具体展开可以看下马上要提到的微软DeepSpeed Chat的实现)
 ```math
 \mathrm{A}(\mathrm{x}, \mathrm{y}) \approx \mathrm{r}(\mathrm{x}, \mathrm{y})-\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) + \gamma V_{\pi }(s_{t+1}) - V_\pi (s)
 ```
