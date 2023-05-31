@@ -738,8 +738,6 @@ $`\frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)}= \nabla \log p_{\theta}(\tau)
 >
 > 上述推导总共4个等式3个步骤，其中，第一步 先分母分子都乘以一个$`p_{\theta}(\tau)`$，第二步 把$`\frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)}= \nabla \log p_{\theta}(\tau)`$代入计算，第三步 根据期望的定义$`E[X] = \sum_{i}^{}p_ix_i`$做个简单转换，此处的$`X`$就是$`R(\tau )`$
 >
-> * * *
->
 > 此外，本文一读者在23年2.24日的留言说，还想了解$`\nabla f(x)=f(x)\nabla \log f(x)`$是怎么推导而来的，这个式子可以通过如下推导得到
 >
 > 首先，对函数$`f(x)`$取对数得：
@@ -884,8 +882,7 @@ $`\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p
 这里需要做一件事情，假设模型是$`\theta`$的时候，我们看到$`s_{t}`$的概率，跟模型是$`\theta^{'}`$的时候，看到$`s_{t}`$的概率是差不多的，即$`p_{\theta}(s_t)=p_{\theta'}(s_t)`$。
 
 > 为什么可以这样假设呢？一种直观的解释就是$`p_{\theta}(s_t)`$很难算，这一项有一个参数$`\theta`$，需要拿$`\theta`$去跟环境做互动，算$`s_{t}`$出现的概率。 尤其是如果输入是图片的话，同样的$`s_{t}`$根本就不会出现第二次。我们根本没有办法估这一项，所以就直接无视这个问题。
->
-> * * *
+
 >
 > 但是$`p_{\theta}(a_t|s_t)`$是很好算，我们有$`\theta`$这个参数，它就是个网络。我们就把$`s_{t}`$带进去，$`s_{t}`$就是游戏画面。 我们有个策略的网络，输入状态$`s_{t}`$，它会输出每一个$`a_{t}`$的概率。所以，我们只要知道$`\theta`$和$`\theta'`$的参数就可以算$`\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}`$。
 
@@ -911,12 +908,17 @@ $`\mathbb{E}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\
 > 因为两个随机变量的平均值相同，并不代表它们的方差相同
 >
 > 此话怎讲？以下是推导过程：
-> 将$`f(x)`$、$`f(x) \frac{p(x)}{q(x)}`$分别代入方差的公式  
-> $`\operatorname{Var}[X]=E\left[X^{2}\right]-(E[X])^{2}`$
->
-> 则分别可得(且考虑到不排除会有比初级更初级的初学者学习本文，故把第二个公式拆解的相对较细)    
-$`\operatorname{Var}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim p}\left[f(x)^{2}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2}`$  
-$`\begin{aligned} \operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=\mathbb{E}_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\ &= \int \left(f(x) \frac{p(x)}{q(x)}\right)^{2} q(x) dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &= \int f(x)^{2} \frac{p(x)}{q(x)} p(x)dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &=\mathbb{E}_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \end{aligned}`$
+> 将$`f(x)`$、$`f(x) \frac{p(x)}{q(x)}`$分别代入方差的公式   
+```math
+\operatorname{Var}[X]=E\left[X^{2}\right]-(E[X])^{2}
+``` 
+> 则分别可得(且考虑到不排除会有比初级更初级的初学者学习本文，故把第二个公式拆解的相对较细)   
+```math
+\operatorname{Var}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim p}\left[f(x)^{2}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2}
+```
+```math
+\begin{aligned} \operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=\mathbb{E}_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\ &= \int \left(f(x) \frac{p(x)}{q(x)}\right)^{2} q(x) dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &= \int f(x)^{2} \frac{p(x)}{q(x)} p(x)dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &=\mathbb{E}_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \end{aligned}
+```
 >
 > 上述两个公式前后对比，可以很明显的看出
 >后者的第一项多乘了$`p(x)q(x)`$，如果$`p(x)q(x)`$差距很大，$`f(x)p(x)q(x)`$的方差就会很大  
@@ -1026,7 +1028,8 @@ TRPO的问题在于把 KL 散度约束当作一个额外的约束，没有放在
 * 先设一个可以接受的 KL 散度的最大值$`KL_{max}`$
 假设优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，**KL 散度值太大导致$`KL(\theta,\theta')>KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过大(即学习率/步长过大)**，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太弱而没有发挥作用，故增大惩罚把$`\beta`$增大
 * 再设一个 KL 散度的最小值$`KL_{min}`$
-如果优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，KL散度值比最小值还要小导致$`KL(\theta,\theta')<KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过小，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太强了，我们担心它只优化后一项，使$`\theta`$与$`\theta'`$一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
+  如果优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，KL散度值比最小值还要小导致
+  $`KL(\theta,\theta')<KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过小，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太强了，我们担心它只优化后一项，使$`\theta`$与$`\theta'`$一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
 
 > 关于$`\beta`$具体怎么设置的？除了上面提到的自适应KL惩罚(adaptive KL penalty)，来自2017年发表的PPO论文
 >
@@ -1077,15 +1080,17 @@ $`{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t}
 
 ![](./assets/images/RL_simple_primer/1798baf5dba54e21a19508e82d407a8a.png)
 
-* 然后是$`{clip}`$括号外乘以$`A^{\theta '}(s_t,a_t)`$，如果$`A^{\theta '}(s_t,a_t)`$大于0，则说明这是好动作，需要增大$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta }(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最大不能超过$`(1+\varepsilon)`$；如果$`A^{\theta '}(s_t,a_t)`$小于0，则说明该动作不是好动作，需要减小$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta }(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最小不能小过$`(1- \varepsilon)`$
+* 然后是$`{clip}`$括号外乘以$`A^{\theta '}(s_t,a_t)`$，如
+果$`A^{\theta '}(s_t,a_t)`$大于0，则说明这是好动作，需要增大$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta }(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最大不能超过$`(1+\varepsilon)`$；如
+果$`A^{\theta '}(s_t,a_t)`$小于0，则说明该动作不是好动作，  
+需要减小$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta }(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最小不能小过$`(1- \varepsilon)`$
 
 > 最后把公式的两个部分综合起来，针对整个目标函数
->
-> $`\begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}`$
+$`\begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}`$
 >
 > ![](./assets/images/RL_simple_primer/0bb3ab43b467ce1071d28a89537abc9c.png)
 >
-> 反之，**如果**$`A^{\theta '}(s_t,a_t)`$**小于0，则最终目标函数的取值为了更小则和**$`A^{\theta '}(s_t,a_t)`$**大于0时反过来**，毕竟加了个负号自然一切就不同了，为方便初学者一目了然，咱们还是把计算过程列出来，即
+> 反之，**如果** $`A^{\theta '}(s_t,a_t)`$**小于0，则最终目标函数的取值为了更小则和** $`A^{\theta '}(s_t,a_t)`$**大于0时反过来**，毕竟加了个负号自然一切就不同了，为方便初学者一目了然，咱们还是把计算过程列出来，即
 
 ### 4.4.3 PPO算法的一个简单实现：对话机器人
 
@@ -1133,34 +1138,51 @@ $`{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t}
     比如一个小小的策略梯度的计算公式会有近10来种表达，下面特意贴出其中6种，供读者辨别
     第一种，本笔记和Easy RL中用的
 
-    $`\nabla \bar{R}_{\theta}=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)`$
+```math
+\nabla \bar{R}_{\theta}=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)
+```
 
     第二种，Sutton强化学习《Reinforcement Learning: An Introduction》第一版中用的
 
-    $`\nabla_{\theta}J(\pi_\theta)=\sum_{s}^{}d^\pi (s) \sum_{a}^{}\nabla_{\theta} \pi _\theta (a|s)Q^\pi (s,a)= E_\pi [\gamma^t \nabla_{\theta}log\pi_\theta (A_t|S_t)Q^\pi(S_t,A_t)]`$
-
-    其中$`d\pi(s)= \sum_{t=0}^{\infty } \gamma^t Pr(s_0\rightarrow s,t,\pi )=\sum_{t=0}^{\infty } \gamma^t Pr\left \{ S_t=s|s_0,\pi \right \}`$叫做discounted state distribution
+```math
+\nabla_{\theta}J(\pi_\theta)=\sum_{s}^{}d^\pi (s) \sum_{a}^{}\nabla_{\theta} \pi _\theta (a|s)Q^\pi (s,a)= E_\pi [\gamma^t \nabla_{\theta}log\pi_\theta (A_t|S_t)Q^\pi(S_t,A_t)]
+```
+    其中
+```math
+d\pi(s)= \sum_{t=0}^{\infty } \gamma^t Pr(s_0\rightarrow s,t,\pi )=\sum_{t=0}^{\infty } \gamma^t Pr\left \{ S_t=s|s_0,\pi \right \}
+```
+叫做discounted state distribution
 
     第三种，David sliver在2014年的《Deterministic Policy Gradient Algorithm》论文中用的
 
-    $`\nabla_\theta J(\pi _\theta ) = \int_{S}^{}\rho ^\pi (s) \int_{A}^{}\nabla_\theta \pi _\theta(a|s)Q^\pi(s,a) =E_{s\sim\rho ^\pi,a\sim\pi_\theta }[\nabla_\theta log\pi _\theta(a|s)Q^\pi (s,a)]`$
-
+```math
+\nabla_\theta J(\pi _\theta ) = \int_{S}^{}\rho ^\pi (s) \int_{A}^{}\nabla_\theta \pi _\theta(a|s)Q^\pi(s,a) =E_{s\sim\rho ^\pi,a\sim\pi_\theta }[\nabla_\theta log\pi _\theta(a|s)Q^\pi (s,a)]
+```
     其中，$`\rho ^\pi (s)`$与上述$`d\pi(s)`$相同，都是discounted state distribution。
 
     第四种，肖志清《强化学习：原理与Python实现》中用的
 
-    $`\nabla_\theta J(\pi _\theta )= E[\sum_{t=0}^{\infty } \gamma ^t \nabla_\theta log\pi _\theta (A_t|S_t)Q^\pi (S_t,A_t)]`$
+   
+```math
+\nabla_\theta J(\pi _\theta )= E[\sum_{t=0}^{\infty } \gamma ^t \nabla_\theta log\pi _\theta (A_t|S_t)Q^\pi (S_t,A_t)]
+```
+第五种，Sutton强化学习在2018年的第二版中用的
 
-    第五种，Sutton强化学习在2018年的第二版中用的
+```math
+\nabla_\theta J(\pi_\theta)\propto\sum_{S}^{}\mu ^\pi(s)\sum_{a}^{}\nabla_\theta \pi _\theta(a|s)Q^\pi(s,a)= E_\pi [\nabla_\theta log\pi _\theta (A_t|S_t)Q^\pi (S_t,A_t)]
+```
 
-    $`\nabla_\theta J(\pi_\theta)\propto\sum_{S}^{}\mu ^\pi(s)\sum_{a}^{}\nabla_\theta \pi _\theta(a|s)Q^\pi(s,a)= E_\pi [\nabla_\theta log\pi _\theta (A_t|S_t)Q^\pi (S_t,A_t)]`$
+其中，
+```math
+\mu ^\pi (s)=\lim_{t\rightarrow\propto}Pr(S_t=s|s_0,\pi _\theta )
+```
+是stationary distribution (undiscounted state distribution)
 
-    其中，$`\mu ^\pi (s)=\lim_{t\rightarrow\propto}Pr(S_t=s|s_0,\pi _\theta )`$是stationary distribution (undiscounted state distribution)
+第六种，Open AI spinning up教程中用的
 
-    第六种，Open AI spinning up教程中用的
-
-    $`\nabla_\theta J(\pi_\theta)= E_{(\tau \sim\pi)} [\sum_{t=0}^{T}\nabla_\theta log\pi _\theta (a_t|s_t)Q^\pi(s_t,a_t)]`$
-
+```math
+\nabla_\theta J(\pi_\theta)= E_{(\tau \sim\pi)} [\sum_{t=0}^{T}\nabla_\theta log\pi _\theta (a_t|s_t)Q^\pi(s_t,a_t)]
+```
 
 ## 参考文献与推荐阅读
 
@@ -1204,8 +1226,10 @@ RL里的细节、概念、公式繁多，想完全阐述清楚是不容易的，
 4.  1.19日，为让读者理解起来更一目了然
     优化1.3.1节中关于什么是近端策略优化PPO的描述
     优化1.3.2节中关于“近端策略优化惩罚PPO-penalty关于自适应KL惩罚（adaptive KL penalty）”的描述
-    拆解细化关于$`\nabla \log p_{\theta}(\tau)`$的推导过程
-    补充说明对优势函数$`A^{\theta }(s_{t},a_{t})`$的介绍
+    拆解细化关于
+    $`\nabla \log p_{\theta}(\tau)`$的推导过程
+    补充说明对优势函数
+    $`A^{\theta }(s_{t},a_{t})`$的介绍
 5.  1.20日，第五轮修改/完善/新增
     通过LaTeX重新编辑部分公式，以及补充说明1.2.1节中关于某一条轨迹$`\tau`$发生概率的定义
 6.  1.21日(大年三十)，新增对蒙/新增特卡洛方法的介绍，以及新增$`R(\tau)-b`$中基线$`b`$的定义，且简化2.1.1节中关于强化学习过程的描述
