@@ -523,7 +523,7 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 
 > 关于什么是优势函数 下文会具体阐述，咱们就用上文的知识来一步步推导  
 > 因  
->  $`\begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}`$
+> $`\begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}`$  
 > 从而求解Q时，算是实际奖励$`R + V`$，而$`V`$通过critic网络学习(比如通过蒙特卡洛或时序差分),  
 > 最终$`A(s, a) = Q(s,a) - V(s)`$  
 > 相当于如春天所说，实践中只需要$`V(s)`$用神经网络来实现就行，因为$`Q(s,a)`$已经可以被$`V(s)`$和$`R`$表示了，不需要再另外实现.
