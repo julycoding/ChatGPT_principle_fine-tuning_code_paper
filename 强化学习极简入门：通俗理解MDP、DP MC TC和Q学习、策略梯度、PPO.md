@@ -130,9 +130,9 @@ P=\begin{bmatrix} P(s_1|s_1) \ P(s_2|s_1) \ P(s_3|s_1) \cdots P(s_n|s_1)&\\ P(s_
 
     **注意，有的书上奖励函数和下面回报公式中的$`R_{t+1}`$的下标$`t+1`$写为t**，其实严格来说，先有t时刻的状态/动作之后才有t+1时刻的奖励，但应用中两种下标法又都存在，读者注意辨别  
 +  此外，实际中，因为一个状态可以得到的奖励是持久的，所有奖励的衰减之和称为回报，可用$`G`$**表示当下即时奖励和所有持久奖励等一切奖励的加权和** (考虑到一般越往后某个状态给的回报率越低，也即奖励因子或折扣因子越小，用$`\gamma`$表示)，从而有  
-    ```math  
+```math  
     \begin{aligned}G_t &=R_{t+1} + \gamma \cdot R_{t+2}+ \gamma ^2\cdot R_{t+3} + \gamma ^3\cdot R_{t+4}+\cdots\\&= R_{t+1} + \gamma (R_{t+2}+ \gamma \cdot R_{t+3} + \gamma ^2\cdot R_{t+4}+\cdots) \\&= R_{t+1} + \gamma G_{t+1} \end{aligned}
-    ```  
+```  
 
     举个例子，一个少年在面对“上大学、去打工、在家啃老”这三种状态，哪一种更能实现人生的价值呢？
     相信很多人为长远发展都会选择上大学，因为身边有太多人因为上了大学，而好事连连，比如读研读博留学深造、进入大厂、娶个漂亮老婆、生个聪明孩子
@@ -148,16 +148,17 @@ P=\begin{bmatrix} P(s_1|s_1) \ P(s_2|s_1) \ P(s_3|s_1) \cdots P(s_n|s_1)&\\ P(s_
 +  后半部分表示当前状态得到的所有持久奖励$`\gamma E[V(S_{t+1})|S_t = s]`$，可以根据从状态s出发的转移概率得到『至于上述推导的最后一步，在于$`E[G_{t+1}|S_t = s]`$等于$`E[V(S_{t+1})|S_t = s)]`$』  
 
    有个别朋友在我维护的Machine Learning读书会群里说，对上述推导最后一步的推导过程有疑问，考虑到本文追求详尽细致，加之大部分资料都是把这个当结论默认的，故还是把这个推导过程详细写一下    
-   ```math  
-   \begin{aligned} E[G_{t+1}|S_t = s] &= \sum G_{t+1}P\left \{ G_{t+1}|S_t = s \right \} \\& = \sum G_{t+1}\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \} \\& = \sum_{s'}^{}\sum G_{t+1}P\left \{ G_{t+1}|S_{t+1} =s',S_t =s \right \}P\left \{ S_{t+1} =s'|S_t =s \right \} \\& = \sum_{s'}^{}E[G_{t+1}|S_{t+1} = s',S_t =s]P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = \sum_{s'}^{}V(S_{t+1})P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = E[V(S_{t+1})|S_t =s] \end{aligned}```    
+```math  
+   \begin{aligned} E[G_{t+1}|S_t = s] &= \sum G_{t+1}P\left \{ G_{t+1}|S_t = s \right \} \\& = \sum G_{t+1}\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \} \\& = \sum_{s'}^{}\sum G_{t+1}P\left \{ G_{t+1}|S_{t+1} =s',S_t =s \right \}P\left \{ S_{t+1} =s'|S_t =s \right \} \\& = \sum_{s'}^{}E[G_{t+1}|S_{t+1} = s',S_t =s]P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = \sum_{s'}^{}V(S_{t+1})P\left \{ S_{t+1}=s'|S_t =s \right \} \\& = E[V(S_{t+1})|S_t =s] \end{aligned}
+```    
    可能又有同学对上述第二个等式怎么来的又有疑问了，怎么推导呢？我们只需推导出      
-   ```math  
+```math  
    P\left \{ G_{t+1}|S_t =s \right \} = \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1} = s',S_t =s \right \}P\left \{ S_{t+1} = s'|S_t =s \right \}
-   ```    
+```    
 推导过程如下
-   ```math  
+```math  
    \begin{aligned} P\left \{ G_{t+1}|S_t=s \right \} &= \frac{P\left \{ G_{t+1},S_t=s \right \}}{P(S_t=s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1},S_{t+1}=s',S_t =s \right \}}{P(S_t =s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s',S_t =s)}{P(S_t =s)}\\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t =s)P(S_t =s)}{P(S_t =s)}\\&= \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t=s) \end{aligned}
-   ```  
+```  
 
 从而，综合前后两个部分可得
 ```math  
@@ -171,7 +172,9 @@ V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')
    接下来有$`P_{36}`$的概率引发状态$`S_6`$($`S_6`$的即时奖励为$`R_{s6}`$，后续无持久奖励),，有$`P_{37}`$的概率引发状态$`S_7`$($`S_7`$的即时奖励为$`R_{s7}`$，后续无持久奖励)   
 
 其中折扣因此为$`\gamma`$，那么因状态$`S_1`$而得到的一切奖励为
-```math  R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25} R_{s5}) + \gamma^2(P_{36} R_{s6} + P_{37}R_{s7}) \\ = R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25} R_{s5} + P_{36} R_{s6} + P_{37}R_{s7})```  
+```math  
+R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25} R_{s5}) + \gamma^2(P_{36} R_{s6} + P_{37}R_{s7}) \\ = R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25} R_{s5} + P_{36} R_{s6} + P_{37}R_{s7})
+```  
 
 类似的，因状态$`S_2`$得到的一切奖励为$`R_{s2} + \gamma (P_{24}R_{s4} + P_{25}R_{s5})`$
 
@@ -192,11 +195,17 @@ V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')
 >.$`G'_{s1} = R_{s1} + \gamma R_{s3} = 5 + 0.5\times 3 = 6.5`$
 >
 > 由于状态$`s_2`$和状态$`s_3`$没有后续状态，所以$`s_2`$和$`s_3`$对应的状态值函数分别为  
-> ```math  v_{s2} = R_{s2} = 7  \\v_{s3} = R_{s3} = 3```  
+```math
+  v_{s2} = R_{s2} = 7  \\v_{s3} = R_{s3} = 3
+```  
 > 再根据贝尔曼方程$`V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')`$，可得状态$`s_1`$的状态价值函数为
-> ```math  \begin{aligned} V(s1) &= R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) \\&= 5+ 0.5 \times (0.6\times 7 + 0.4 \times 3) \\&= 7.7 \end{aligned}  ```    
+```math
+  \begin{aligned} V(s1) &= R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) \\&= 5+ 0.5 \times (0.6\times 7 + 0.4 \times 3) \\&= 7.7 \end{aligned}  
+```    
 > 当然，你也可以如此计算(可以很明显的看出，计算量不如上述过程简洁，所以一般优先按上述方式计算)  
-> ```math  \begin{aligned} V(s1) &= E[G_t|S_t=s] \\& = p_{12} \times G^{s2}_{s1} + p_{13} \times G^{s3}_{s1} \\& = P_{12} (R_{s1} + \gamma R_{s2}) + P_{13} (R_{s1} + \gamma R_{s3})\\& = 0.6(5 + 0.5\times 7) + 0.4(5+0.5\times 3) \\& = 7.7 \end{aligned}```  
+```math
+  \begin{aligned} V(s1) &= E[G_t|S_t=s] \\& = p_{12} \times G^{s2}_{s1} + p_{13} \times G^{s3}_{s1} \\& = P_{12} (R_{s1} + \gamma R_{s2}) + P_{13} (R_{s1} + \gamma R_{s3})\\& = 0.6(5 + 0.5\times 7) + 0.4(5+0.5\times 3) \\& = 7.7 \end{aligned}
+```  
 
 上述例子的状态比较少所以计算量不大，但当状态一多，则贝尔曼方程的计算量还是比较大的，而求解较大规模的马尔可夫奖励过程中的价值函数时，可以用的方法包括：动态规划、蒙特卡洛方法、时序差分(temporal difference，简称TD)方法  
 当然，其中细节还是不少的，下文第二部分会详述这三大方法
@@ -211,13 +220,19 @@ V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')
 > 在马尔可夫决策过程中，$`S_t`$($`S`$是状态的集合)和$`R_t`$($`R`$是奖励的集合)的每个可能的值出现的概率只取决于前一个状态$`S_{t-1}`$和前一个动作$`A_{t-1}`$($`A`$是动作的集合)，并且与更早之前的状态和动作完全无关
 
 换言之，当给定当前状态$`S_t`$(比如$`S_t =s`$，以及当前采取的动作$`A_t`$(比如$`A_t = a`$，那么下一个状态$`S_{t+1}`$出现的概率，可由状态转移概率矩阵表示如下  
-```math  \begin{aligned}P_{ss'}^{a} &= P(S_{t+1}=s'|S_t =s,A_t = a) \\&= {}P(s'|s,a) \end{aligned}```  
+```math
+  \begin{aligned}P_{ss'}^{a} &= P(S_{t+1}=s'|S_t =s,A_t = a) \\&= {}P(s'|s,a) \end{aligned}
+```  
 
 假定在当前状态和当前动作确定后，其对应的奖励则设为$`R_{t+1} = r`$，故sutton的RL一书中，给的状态转移概率矩阵类似为  
-```math  \begin{aligned}p(s',r|s,a)=P\left \{ S_{t+1} = s',R_{t+1} = r |S_t = s,A_t = a \right \} \end{aligned}```  
+```math
+  \begin{aligned}p(s',r|s,a)=P\left \{ S_{t+1} = s',R_{t+1} = r |S_t = s,A_t = a \right \} \end{aligned}
+```  
 
 从而可得奖励函数即为
-```math  \begin{aligned}R(s,a) &= E[R_{t+1} | S_t = s,A_t = a] \\&=\sum_{s'\in S}^{}p(s',r|s,a) \sum_{r\in R}^{}r \end{aligned}```  
+```math
+  \begin{aligned}R(s,a) &= E[R_{t+1} | S_t = s,A_t = a] \\&=\sum_{s'\in S}^{}p(s',r|s,a) \sum_{r\in R}^{}r \end{aligned}
+```  
 
 > 考虑到后来有读者对上面这个公式有疑惑，所以解释下推导步骤
 > 
@@ -227,7 +242,9 @@ V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')
 > 3.  最后，我们将这些概率与对应的奖励$`r`$相乘并相加，以得到条件期望
 > 
 > 当然，如果奖励是确定性的，则可以简化公式，去掉对$`r`$的求和，即：
-> ```math  R(s,a) = \sum p(s',r|s,a) * r```  
+```math
+  R(s,a) = \sum p(s',r|s,a) * r
+```  
 > 
 > 相当于此时只需要计算在状态$`s`$下采取动作$`a`$后，转移到下一个状态$`s'`$的概率乘以确定的奖励$`r`$，然后对所有可能的下一个状态$`s'`$求和以得到条件期望  
 
@@ -240,10 +257,14 @@ V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')
 
 而有了动作这个因素之后，我们重新梳理下价值函数
 +  首先，通过**状态价值函数**对当前状态进行评估
-```math  \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\&= E_\pi [R_{t+1} + \gamma G_{t+1} | S_t = s] \\&= E_\pi [R_{t+1} + \gamma V_\pi (S_{t+1}) | S_t = s] \end{aligned}```  
+```math
+  \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\&= E_\pi [R_{t+1} + \gamma G_{t+1} | S_t = s] \\&= E_\pi [R_{t+1} + \gamma V_\pi (S_{t+1}) | S_t = s] \end{aligned}
+```  
    相当于从状态$`s`$出发遵循策略$`\pi`$能获得的期望回报
 +  其次，通过“动作价值函数”对动作的评估
-```math  \begin{aligned} Q_\pi (s,a) &= E_\pi [G_t | S_t=s,A_t = a] \\& = E_\pi [R_{t+1} + \gamma G_{t+1}| S_t=s,A_t = a] \\& = E_\pi [R_{t+1} + \gamma Q_\pi (S_{t+1},A_{t+1})| S_t=s,A_t = a] \end{aligned}```  
+```math
+  \begin{aligned} Q_\pi (s,a) &= E_\pi [G_t | S_t=s,A_t = a] \\& = E_\pi [R_{t+1} + \gamma G_{t+1}| S_t=s,A_t = a] \\& = E_\pi [R_{t+1} + \gamma Q_\pi (S_{t+1},A_{t+1})| S_t=s,A_t = a] \end{aligned}
+```  
    相当于对当前状态$`s`$依据策略$`\pi`$执行动作$`a`$得到的期望回报，这就是大名鼎鼎的$`Q`$函数，得到$`Q`$函数后，进入某个状态要采取的最优动作便可以通过$`Q`$函数得到  
    ![5bbf0a4065be4b5584277e28502f7a7a.png](./assets/images/RL_simple_primer/5bbf0a4065be4b5584277e28502f7a7a.png)
    
@@ -255,15 +276,23 @@ V(s) = R(s) + \gamma \sum_{s'\in S}^{}P(s'|s)V(s')
 且通过状态转移概率分布，我们可以揭示状态价值函数和动作价值函数之间的联系了
 
 +   在使用策略$`\pi`$时，**状态$`S`$的价值等于在该状态下基于策略$`\pi`$采取所有动作的概率与相应的价值相乘再求和的结果**
-    ```math  V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a)```  
+```math
+  V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a)
+```  
     
     我猜可能有读者会问怎么来的，简略推导如下  
-    ```math  \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = \sum_{a \in A}^{}\pi (a|s)E_\pi [G_t|S_t = s,A_t = a]\\& = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a) \end{aligned}```    
+```math
+      \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = \sum_{a \in A}^{}\pi (a|s)E_\pi [G_t|S_t = s,A_t = a]\\& = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a) \end{aligned}
+```    
     
 + 而使用策略$`\pi`$时，在状态$`S`$下采取动作$`a`$!的价值等于当前奖励$`R(s,a)`$，加上经过衰减的所有可能的下一个状态的状态转移概率与相应的价值的乘积    
-  ```math  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')```    
+```math
+Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
+```    
   针对这个公式 大部分资料都会一带而过，但不排除会有不少读者问怎么来的，考虑到**对于数学公式咱们不能想当然靠直觉的自认为**，所以还是得一五一十的推导下    
-  ```math  \begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}```    
+    ```math
+    \begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}
+    ```    
     
   上述推导过程总共五个等式，其中，第三个等式到第四个等式依据的是  
   ```math  E[ G_{t+1} | S_t =s,A_t = a] = \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ]```  
