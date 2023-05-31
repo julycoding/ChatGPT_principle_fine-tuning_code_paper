@@ -908,16 +908,16 @@ $`\mathbb{E}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\
 > 因为两个随机变量的平均值相同，并不代表它们的方差相同
 >
 > 此话怎讲？以下是推导过程：
-> 将$`f(x)`$、$`f(x) \frac{p(x)}{q(x)}`$分别代入方差的公式   
+> 将$`f(x)`$、$`f(x) \frac{p(x)}{q(x)}`$分别代入方差的公式
 ```math
-\operatorname{Var}[X]=E\left[X^{2}\right]-(E[X])^{2}
+Var[X]=E[X^2]−(E[X])^2   
 ``` 
 > 则分别可得(且考虑到不排除会有比初级更初级的初学者学习本文，故把第二个公式拆解的相对较细)   
 ```math
-\operatorname{Var}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim p}\left[f(x)^{2}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2}
+Var_{x \sim p}[f(x)]=\mathbb{E}_{x \sim p}\left[f(x)^{2}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2}
 ```
 ```math
-\begin{aligned} \operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=\mathbb{E}_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\ &= \int \left(f(x) \frac{p(x)}{q(x)}\right)^{2} q(x) dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &= \int f(x)^{2} \frac{p(x)}{q(x)} p(x)dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &=\mathbb{E}_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \end{aligned}
+\begin{aligned} Var_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=\mathbb{E}_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\ &= \int \left(f(x) \frac{p(x)}{q(x)}\right)^{2} q(x) dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &= \int f(x)^{2} \frac{p(x)}{q(x)} p(x)dx - \left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \\ &=\mathbb{E}_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2} \end{aligned}
 ```
 >
 > 上述两个公式前后对比，可以很明显的看出
