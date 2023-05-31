@@ -105,7 +105,20 @@
 
 下面的状态转移矩阵显示的是天气例子中可能的状态转移概率： 
 ```math  
-
+\begin{matrix}
+	&		Today\\
+	Yesterday&		\begin{array}{c}
+	\\
+	sun\\
+	cloud\\
+	rain\\
+\end{array}\left[ \begin{matrix}
+	sun&		cloud&		rain&		\\
+	0.50&		0.375&		0.125&		\\
+	0.25&		0.125&		0.625&		\\
+	0.25&		0.375&		0.375&		\\
+\end{matrix} \right]\\
+\end{matrix}
 ```  
 
 也就是说，如果昨天是晴天，那么今天是晴天的概率为0.5，是多云的概率为0.375、是雨天的概率为0.125，且这三种天气状态的概率之和必为1.
@@ -134,9 +147,7 @@ P=\begin{bmatrix} P(s_1|s_1) \ P(s_2|s_1) \ P(s_3|s_1) \cdots P(s_n|s_1)&\\ P(s_
     \begin{aligned}G_t &=R_{t+1} + \gamma \cdot R_{t+2}+ \gamma ^2\cdot R_{t+3} + \gamma ^3\cdot R_{t+4}+\cdots\\&= R_{t+1} + \gamma (R_{t+2}+ \gamma \cdot R_{t+3} + \gamma ^2\cdot R_{t+4}+\cdots) \\&= R_{t+1} + \gamma G_{t+1} \end{aligned}
 ```  
 
-    举个例子，一个少年在面对“上大学、去打工、在家啃老”这三种状态，哪一种更能实现人生的价值呢？
-    相信很多人为长远发展都会选择上大学，因为身边有太多人因为上了大学，而好事连连，比如读研读博留学深造、进入大厂、娶个漂亮老婆、生个聪明孩子
-    当然了，上大学好处肯定多多，但上大学这个状态对上面4件好事所给予的贡献必然是逐级降低，毕竟越往后，越会有更多或更重要的因素成就更后面的好事，总不能所有好事都百分百归功于最开头选择了“上大学”这个状态/决策嘛
+   举个例子，一个少年在面对“上大学、去打工、在家啃老”这三种状态，哪一种更能实现人生的价值呢？相信很多人为长远发展都会选择上大学，因为身边有太多人因为上了大学，而好事连连，比如读研读博留学深造、进入大厂、娶个漂亮老婆、生个聪明孩子,当然了，上大学好处肯定多多，但上大学这个状态对上面4件好事所给予的贡献必然是逐级降低，毕竟越往后，越会有更多或更重要的因素成就更后面的好事，总不能所有好事都百分百归功于最开头选择了“上大学”这个状态/决策嘛
 
 而一个状态的期望回报就称之为这个状态的价值，所有状态的价值则组成了所谓的价值函数，用公式表达为$`V(s) = E[G_t|S_t=s]`$，展开一下可得
 ```math  
@@ -275,12 +286,12 @@ R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25} 
 
 且通过状态转移概率分布，我们可以揭示状态价值函数和动作价值函数之间的联系了
 
-+   在使用策略$`\pi`$时，**状态$`S`$的价值等于在该状态下基于策略$`\pi`$采取所有动作的概率与相应的价值相乘再求和的结果**
++ 在使用策略$`\pi`$时，**状态$`S`$的价值等于在该状态下基于策略$`\pi`$采取所有动作的概率与相应的价值相乘再求和的结果**
 ```math
   V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a)
 ```  
     
-    我猜可能有读者会问怎么来的，简略推导如下  
+  我猜可能有读者会问怎么来的，简略推导如下  
 ```math
       \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = \sum_{a \in A}^{}\pi (a|s)E_\pi [G_t|S_t = s,A_t = a]\\& = \sum_{a \in A}^{}\pi (a|s)Q_\pi (s,a) \end{aligned}
 ```    
@@ -290,18 +301,26 @@ R_{s1} + \gamma (P_{12}R_{s2} + P_{13}R_{s3}) + \gamma^2(P_{24} R_{s4} + P_{25} 
 Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 ```    
   针对这个公式 大部分资料都会一带而过，但不排除会有不少读者问怎么来的，考虑到**对于数学公式咱们不能想当然靠直觉的自认为**，所以还是得一五一十的推导下    
-    ```math
+```math
     \begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}
-    ```    
+```    
     
   上述推导过程总共五个等式，其中，第三个等式到第四个等式依据的是  
-  ```math  E[ G_{t+1} | S_t =s,A_t = a] = \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ]```  
+```math
+    E[ G_{t+1} | S_t =s,A_t = a] = \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ]
+```  
   至于第四个等式到第五个等式依据的是状态转移概率矩阵的定义  
-  ```math  P_{ss'}^{a} = P(S_{t+1}=s'|S_t =s,A_t = a)```  
+```math
+    P_{ss'}^{a} = P(S_{t+1}=s'|S_t =s,A_t = a)
+```  
 
 接下来，把上面$`V_\pi (s)`$和$`Q_\pi (s,a)`$的计算结果互相代入，可得**马尔可夫决策的贝尔曼方程**
-```math  V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)\left [ R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s'))\right ]```  
-```math  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)\left [ \sum_{a' \in A}^{}\pi (a'|s')Q_\pi (s',a') \right ]```  
+```math
+  V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)\left [ R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s'))\right ]
+```  
+```math
+  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)\left [ \sum_{a' \in A}^{}\pi (a'|s')Q_\pi (s',a') \right ]
+```  
 
 上述过程可用下图形象化表示(配图来自文献21)
 
@@ -341,7 +360,9 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 >+  如果放第$`i`$件物品，那么问题就转化为“前$`i-1`$件物品放入剩下的容量为$`v-C_i`$的背包中”，此时能获得的最大价值就是$`F[i-1,v-C_i]`$再加上通过放入第i件物品获得的价值$`W_i`$
 > 
 >  则其状态转移方程便是：
-> ```math  F[i,v]=max\{F[i-1,v],F[i-1,v-C_i]W_i\}```  
+```math
+  F[i,v]=max\{F[i-1,v],F[i-1,v-C_i]W_i\}
+```  
 
 通过上述这两个个例子，相信你已经看出一些端倪，具体而言，动态规划一般也只能应用于有最优子结构的问题.最优子结构的意思是局部最优解能决定全局最优解(对有些问题这个要求并不能完全满足，故有时需要引入一定的近似).简单地说，问题能够分解成子问题来解决.
 
@@ -372,29 +393,43 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 下面，我们考虑如何求解最优策略$`v_*(s)`$
 
 1.  首先，最优策略可以通过最大化$`q_\pi (s,a)`$找到  
-    ```math  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')```  
+```math
+      Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
+```  
 2.  当$`a= argmax \left \{ Q_*(s,a) \right \}`$时，$`\pi _*(a|s) = 1`$
 
 综合上述两点，可得  
-```math  v_{*}(s) = max \left \{ R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')) \right \}```  
+```math
+  v_{*}(s) = max \left \{ R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')) \right \}
+```  
 
 另，考虑到
 
-```math  \begin{aligned}R(s,a) &= E[R_{t+1} | S_t = s,A_t = a] \\&=\sum_{s'\in S}^{}p(s',r|s,a) \sum_{r\in R}^{}r \end{aligned}```  
+```math
+  \begin{aligned}R(s,a) &= E[R_{t+1} | S_t = s,A_t = a] \\&=\sum_{s'\in S}^{}p(s',r|s,a) \sum_{r\in R}^{}r \end{aligned}
+```  
 
 故也可以如sutton的RL一书上，这样写满足贝尔曼最优方程的价值函数$`V_*(s)`$
 
-```math  \begin{aligned} v_*(s) &= max E[R_{t+1} + \gamma v_*(S_{t+1}) | S_t =s,A_t =a] \\&= max \sum_{s',r}^{}p(s',r|s,a) [r + \gamma v_*(s')] \end{aligned}```  
+```math
+  \begin{aligned} v_*(s) &= max E[R_{t+1} + \gamma v_*(S_{t+1}) | S_t =s,A_t =a] \\&= max \sum_{s',r}^{}p(s',r|s,a) [r + \gamma v_*(s')] \end{aligned}
+```  
 
 相当于当知道奖励函数和状态转换函数时，便可以根据下一个状态的价值来更新当前状态的价值，意味着可以把计算下一个可能状态的价值当成一个子问题，而把计算当前状态的价值看做当前问题，这不刚好就可以用DP来求解了
 
 于是，sutton的RL一书上给出了DP求解最优策略的算法流程
 > 1.初始化
-> ```math  对s\in S，任意设定V(s)\in \mathbb{R}以及\pi (s) \in A(s)```  
+```math
+  对s\in S，任意设定V(s)\in \mathbb{R}以及\pi (s) \in A(s)
+```  
 > 2.策略评估
-> ```math  \begin{array}{l}循环：\\\,\,\,\,\Delta \leftarrow 0 \\\,\,\,\,对每一个s\in S循环：\\\,\,\,\,\,\,\,\,\,\,\,   v \leftarrow V(s) \\\,\,\,\,\,\,\,\,\,\,\,   V(s) \leftarrow \sum_{s',r}^{} p(s',r|s,\pi (s)) [r + \gamma V(s')] \\\,\,\,\,\,\,\,\,\,\,\,\Delta \leftarrow max(\Delta ,|v - V(s)|) \\直到\Delta <\theta (一个决定估计精度的小正数) \end{array}```  
+```math
+  \begin{array}{l}循环：\\\,\,\,\,\Delta \leftarrow 0 \\\,\,\,\,对每一个s\in S循环：\\\,\,\,\,\,\,\,\,\,\,\,   v \leftarrow V(s) \\\,\,\,\,\,\,\,\,\,\,\,   V(s) \leftarrow \sum_{s',r}^{} p(s',r|s,\pi (s)) [r + \gamma V(s')] \\\,\,\,\,\,\,\,\,\,\,\,\Delta \leftarrow max(\Delta ,|v - V(s)|) \\直到\Delta <\theta (一个决定估计精度的小正数) \end{array}
+```  
 > 3.策略改进
-> ```math  \begin{array}{l}policy-stable \leftarrow true \\对每一个s\in S:\\\,\,\,\,\,old-actiton \leftarrow \pi (s) \\\,\,\,\,\,\pi (s) \leftarrow argmax_{(a)} \left \{ \sum_{s',r}^{}p(s',r|s,a) [r + \gamma V(s')] \right \}\\\,\,\,\,\,如果old-action \neq \pi (s)，那么policy-stable \leftarrow false \\如果policy-stable为true，那么停止并返回V \approx v_*以及\pi \approx \pi _*；否则跳转到2 \end{array}```  
+```math
+  \begin{array}{l}policy-stable \leftarrow true \\对每一个s\in S:\\\,\,\,\,\,old-actiton \leftarrow \pi (s) \\\,\,\,\,\,\pi (s) \leftarrow argmax_{(a)} \left \{ \sum_{s',r}^{}p(s',r|s,a) [r + \gamma V(s')] \right \}\\\,\,\,\,\,如果old-action \neq \pi (s)，那么policy-stable \leftarrow false \\如果policy-stable为true，那么停止并返回V \approx v_*以及\pi \approx \pi _*；否则跳转到2 \end{array}
+```  
 
 ## 2.2 蒙特卡洛法
 
@@ -408,7 +443,9 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 
 类似的，我们也可以用蒙特卡洛方法来估计一个策略在一个马尔可夫决策过程中的状态价值.考虑到 一个状态的价值是它的期望回报，那么如果我们用策略在MDP上采样很多条序列，然后计算从这个状态出发的回报再求其期望是否就可以了？好像可行！公式如下：
 
-```math  V_\pi (s) = E_\pi [G_t|S_t = s] = \frac{1}{N} \sum_{i=1}^{N}G_{t}^{(i)}```  
+```math
+  V_\pi (s) = E_\pi [G_t|S_t = s] = \frac{1}{N} \sum_{i=1}^{N}G_{t}^{(i)}
+```  
 
 再看下如何估算定积分的值『如果忘了定积分长啥样的，可以通过RL所需数学基础的其中一篇笔记《[概率统计极简入门：通俗理解微积分/期望方差/正态分布前世今生(23修订版)](https://blog.csdn.net/v_JULY_v/article/details/8308762 "概率统计极简入门：通俗理解微积分/期望方差/正态分布前世今生(23修订版)")》回顾下，比如积分可以理解为由无数个无穷小的面积组成的面积S』
 
@@ -416,7 +453,9 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 
 如上图，我们可以通过随机取4个点，然后类似求矩形面积那样(底x高)，从而用4个面积$`f(x)(b-a)`$的期望来估算定积分$`\int_{a}^{b}f(x)dx`$的值，为让对面积的估算更准确，我们可以取更多的点，比如$`N`$当$`N \rightarrow \propto`$时
 
-```math  \int_{a}^{b}f(x)dx = \lim_{N\rightarrow \propto } \frac{1}{N}(b-a)\sum_{i-1}^{N}f(x_i)```  
+```math
+  \int_{a}^{b}f(x)dx = \lim_{N\rightarrow \propto } \frac{1}{N}(b-a)\sum_{i-1}^{N}f(x_i)
+```  
 
 接下来
 
@@ -427,28 +466,40 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 2.   且考虑到对于连续随机变量$`X`$，其概率密度函数为$`p(x)`$，
 期望为$`E[X] = \int_{-\propto }^{\propto }xp(x)dx`$,
 则有  
-```math  \int_{a}^{b}f(x)dx = \int_{a}^{b}f^*(x)q(x)dx = E_{x\sim f_{X}(x)}[f^*(x)]]```    
+```math
+  \int_{a}^{b}f(x)dx = \int_{a}^{b}f^*(x)q(x)dx = E_{x\sim f_{X}(x)}[f^*(x)]]
+```    
 跟蒙特卡洛方法关联的还有一个重要性采样，不过，暂不急，在第四部分时用到再讲.  
 
 ## 2.3 时序差分法及与DP、MC的区别
 
 当面对状态价值函数的求解时   
 
-```math  \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = E_\pi [R_{t+1} + \gamma G_{t+1} | S_t = s] \\& = E_\pi [R_{t+1} + \gamma V_\pi (S_{t+1}) | S_t = s] \end{aligned}```  
+```math
+  \begin{aligned} V_{\pi}(s) &= E_\pi [G_t|S_t = s] \\& = E_\pi [R_{t+1} + \gamma G_{t+1} | S_t = s] \\& = E_\pi [R_{t+1} + \gamma V_\pi (S_{t+1}) | S_t = s] \end{aligned}
+```  
 
 上述公式总共三个等式
 + 动态规划(DP)会把上述第三个等式的估计值作为目标，不是因为DP要求需要环境模型本身提供期望值，而是因为真实的$`v_\pi (S_{t+1})`$是未知的，所以只能使用当前的估计值$`V_\pi (S_{t+1})`$来替代
-  ```math  V(S_t) \leftarrow E_\pi [R_{t+1} + \gamma V(S_{t+1})]```  
+```math
+    V(S_t) \leftarrow E_\pi [R_{t+1} + \gamma V(S_{t+1})]
+```  
   且DP求解状态S_t的状态值函数时，需要利用所有后续状态$`S_{t+1}`$
-  ```math  V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)\left [ r(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s'))\right ]```  
+```math
+    V_{\pi}(s) = \sum_{a \in A}^{}\pi (a|s)\left [ r(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s'))\right ]
+```  
 + 蒙特卡洛方法(MC)会上述把第一个等式的估计值作为目标，毕竟第一个等式中的期望值是未知的，所以我们用样本回报来代替实际的期望回报  
   但MC求解状态$`S_t`$的状态值函数时，需要等一个完整序列结束，因为只有到此时，$`G_t`$才是已知的
-  ```math  V(S_t) \leftarrow V(S_t) + \alpha [G_t - V(S_t)]```  
+```math
+    V(S_t) \leftarrow V(S_t) + \alpha [G_t - V(S_t)]
+```  
 
 + 而时序差分(TD)呢，它既要采样得到上述第一个等式的期望值，而且还要通过使用上述第三个等式中当前的估计值V来替代真实值$`v_\pi`$
   且TD每过一个time step就利用奖励$`R_{t+1}`$和值函数$`V(S_{t+1})`$ 更新一次（当然，这里所说的one-step TD 方法，也可以两步一更新，三步一更新….）
   考虑到$`G_t = R_{t+1} + \gamma V(S_{t+1})`$，可得  
-  ```math  V(S_t) \leftarrow V(S_t) + \alpha \left [ R_{t+1} + \gamma V{S_{t+1}} - V(S_t) \right ]```  
+```math
+    V(S_t) \leftarrow V(S_t) + \alpha \left [ R_{t+1} + \gamma V{S_{t+1}} - V(S_t) \right ]
+```  
   此更新法也叫TD(0)法，或者一步时序差分法，  
   $`R_{t+1} + \gamma V{S_{t+1}}`$被称为TD目标，  
   $`\delta = R_{t+1} + \gamma V_\pi (S_{t+1}) - V(S_t)`$被称为TD误差  
@@ -472,13 +523,19 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 
 > 关于什么是优势函数 下文会具体阐述，咱们就用上文的知识来一步步推导    
 > 因  
-> ```math  \begin{aligned}G_t &= R_{t+1} + \gamma \cdot R_{t+2}+ \gamma ^2\cdot R_{t+3} + \gamma ^3\cdot R_{t+4}+\cdots \\&= R_{t+1} + \gamma (R_{t+2}+ \gamma \cdot R_{t+3} + \gamma ^2\cdot R_{t+4}+\cdots) \\&= R_{t+1} + \gamma G_{t+1} \end{aligned}```  
+```math
+  \begin{aligned}G_t &= R_{t+1} + \gamma \cdot R_{t+2}+ \gamma ^2\cdot R_{t+3} + \gamma ^3\cdot R_{t+4}+\cdots \\&= R_{t+1} + \gamma (R_{t+2}+ \gamma \cdot R_{t+3} + \gamma ^2\cdot R_{t+4}+\cdots) \\&= R_{t+1} + \gamma G_{t+1} \end{aligned}
+```  
 > 
 > 且  
-> ```math  \begin{aligned} P\left \{ G_{t+1}|S_t=s \right \} &= \frac{P\left \{ G_{t+1},S_t=s \right \}}{P(S_t=s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1},S_{t+1}=s',S_t =s \right \}}{P(S_t =s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s',S_t =s)}{P(S_t =s)}\\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t =s)P(S_t =s)}{P(S_t =s)}\\&= \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t=s) \end{aligned}```  
+```math
+  \begin{aligned} P\left \{ G_{t+1}|S_t=s \right \} &= \frac{P\left \{ G_{t+1},S_t=s \right \}}{P(S_t=s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1},S_{t+1}=s',S_t =s \right \}}{P(S_t =s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s',S_t =s)}{P(S_t =s)}\\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t =s)P(S_t =s)}{P(S_t =s)}\\&= \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t=s) \end{aligned}
+```  
 > 
 > $`故G_t =R_{t+1} + \gamma * V_{t+1}`$，而这就是Q  
-> ```math  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')```  
+```math
+  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
+```  
 > 从而求解Q时，算是实际奖励$`R + V`$，而$`V`$通过critic网络学习(比如通过蒙特卡洛或时序差分),  
 > 最终$`A(s, a) = Q(s,a) - V(s)`$  
 > 相当于如春天所说，实践中只需要$`V(s)`$用神经网络来实现就行，因为$`Q(s,a)`$已经可以被$`V(s)`$和$`R`$表示了，不需要再另外实现.
@@ -510,14 +567,18 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 既然上文可以用时序差分来估计状态价值函数，那是否可以用类似策略迭代的方法来评估动作价值函数呢？毕竟在无模型的RL问题中，动作价值函数比状态价值函数更容易被评估  
 
 如果用类似TD(0)控制的思路寻找最优的动作价值函数并提取出最优策略，便被称作Sarsa(0)算法，所以，Sarsa所做出的改变很简单，它将原本时序差分方法更新$`V`$的过程，变成了更新$`Q`$，即可以如下表达  
-```math  Q(S_t,A_t) \leftarrow Q(S_t,A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t)]```  
+```math
+  Q(S_t,A_t) \leftarrow Q(S_t,A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t)]
+```  
 
 此外，上文说过，“TD每过一个time step就利用奖励$`R_{t+1}`$和值函数$`V(S_{t+1})`$更新一次，当然，这里所说的one-step TD 方法，也可以两步一更新，三步一更新”，这个所谓的多步一更新我们便称之为N步时序差分法    
 
 ![61c34bd9692048c1858665730c1cad15.jpeg](./assets/images/RL_simple_primer/61c34bd9692048c1858665730c1cad15.jpeg)
 
 首先，我们先回复下回报公式的定义，即为(根据前几项可以看出：$`\gamma`$的上标加$`t+1`$即为$`R`$的下标，反过来，当最后一项$`R`$的下标$`T`$确定后，自然便可以得出$`\gamma`$的上标为$`T -t -1`$
-```math  G_t = R_{t+1} + \gamma R_{t+2} + \gamma ^2 R_{t+3}+\cdots + \gamma ^{T-t-1}R_T```  
+```math
+  G_t = R_{t+1} + \gamma R_{t+2} + \gamma ^2 R_{t+3}+\cdots + \gamma ^{T-t-1}R_T
+```  
 从而有
 + 单步回报：$`G_{t:t+1} = R_{t+1} + \gamma V_t(S_{t+1})`$，即为TD(0)控制$`/Sarsa(0)`$算法  
   
@@ -525,18 +586,26 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
   
 + n步回报：$`G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma ^{n-1}R_{t+n} + \gamma ^nV_{t+n-1}(S_{t+n})`$
   此时，类似于TD(0)预测
-  ```math  V(S_t) \leftarrow V(S_t) + \alpha \left [ R_{t+1} + \gamma V{S_{t+1}} - V(S_t) \right ]```    
+  ```math
+    V(S_t) \leftarrow V(S_t) + \alpha \left [ R_{t+1} + \gamma V{S_{t+1}} - V(S_t) \right ]
+```    
 
   有以下状态值更新规则  
-  ```math  V_{t+n}(S_t) = V_{t+n-1}(S_t) + \alpha \left [ G_{t:t+n} - V_{t+n-1}(S_t) \right ], 0\leq t < T```    
+```math
+    V_{t+n}(S_t) = V_{t+n-1}(S_t) + \alpha \left [ G_{t:t+n} - V_{t+n-1}(S_t) \right ], 0\leq t < T
+```    
   而对于其他任意状态$`s(s\neq S_t)`$的价值估计保持不变：$`V_{t+n}(S) = V_{t+n-1}(S)`$
 
 类似的，当用n步时序差分的思路去更新$`Q`$函数则就是所谓的n步Sarsa算法，当我们重新根据动作价值的估计定义如下的b步方法的回报为
 
-```math  G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma ^{n-1}R_{t+n} + \\\gamma ^nQ_{t+n-1}(S_{t+n},A_{t+n}) \\ n\geq 1,0\leq t < T-n```  
+```math
+  G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma ^{n-1}R_{t+n} + \\\gamma ^nQ_{t+n-1}(S_{t+n},A_{t+n}) \\ n\geq 1,0\leq t < T-n
+```  
 
 如此，便可以得到如下$`Q`$的更新方式
-```math  Q_{t+n}(S_t) = Q_{t+n-1}(S_t,A_t) + \alpha \left [ G_{t:t+n} - Q_{t+n-1}(S_t,A_t) \right ],\\0\leq t < T```  
+```math
+  Q_{t+n}(S_t) = Q_{t+n-1}(S_t,A_t) + \alpha \left [ G_{t:t+n} - Q_{t+n-1}(S_t,A_t) \right ],\\0\leq t < T
+```  
 
 ## 3.2 Q-learning
 
@@ -557,14 +626,20 @@ Q-learning介绍得闲阐明一个问题，即所谓的同策略学习与异策�
 > 假设有一个函数$`f(x)`$，$`x`$需要从分布$`p`$中采样，应该如何怎么计算$`f(x)`$的期望值呢？
 > 
 > 如果分布$`p`$不能做积分，那么只能从分布$`p`$尽可能多采样更多的$`x^{i}`$，然后全都代入到$`f(x)`$，按照蒙特卡洛方法的原则取它的平均值就可以得到近似$`f(x)`$的期望值：
-> ```math  \mathbb{E}_{x \sim p}[f(x)] \approx \frac{1}{N} \sum_{i=1}^N f(x^i)```  
+```math
+  \mathbb{E}_{x \sim p}[f(x)] \approx \frac{1}{N} \sum_{i=1}^N f(x^i)
+```  
 > 当不能在分布$`p`$中采样数据，而只能从另外一个分布!$`q`$中去采样数据时($`q`$可以是任何分布），就需要做些变换，如下三步
 > 
 > 1.  首先，期望值$`\mathbb{E}_{x \sim p}[f(x)]`$的另一种写法是$`\int f(x) p(x) \mathrm{d}x`$，对其进行变换，如下式所示
-> ```math  \begin{aligned}\int f(x) p(x) \mathrm{d}x&=\int f(x) \frac{p(x)}{q(x)} q(x) \mathrm{d}x \\&=\mathbb{E}_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]\end{aligned}```  
+```math
+  \begin{aligned}\int f(x) p(x) \mathrm{d}x&=\int f(x) \frac{p(x)}{q(x)} q(x) \mathrm{d}x \\&=\mathbb{E}_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]\end{aligned}
+```  
 >    
 > 2.  整理下可得（左边是分布$`p`$，右边是分布$`q`$）：  
-> ```math  \mathbb{E}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]```  
+```math
+  \mathbb{E}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
+```  
 >     
 > 3.  如此，便就可以从$`q`$里面采样 $`x`$，再计算$`f(x) \frac{p(x)}{q(x)}`$，再取期望值
 > 
@@ -573,18 +648,26 @@ Q-learning介绍得闲阐明一个问题，即所谓的同策略学习与异策�
 ### 3.2.2 Sarsa算法与Q-learning更新规则的对比  
   
 和Sarsa(0)算法的更新规则  
-```math  Q(S_t,A_t) \leftarrow Q(S_t,A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t)]```  
+```math
+  Q(S_t,A_t) \leftarrow Q(S_t,A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t)]
+```  
 有点像，Q-learning的动作价值函数更新规则如下  
-```math  Q\left(S_{t}, A_{t}\right) = Q\left(S_{t}, A_{t}\right)+\alpha\left[R_{t+1}+\gamma \max _{a'} Q\left(S_{t+1}, a'\right)-Q\left(S_{t}, A_{t}\right)\right]```  
+```math
+  Q\left(S_{t}, A_{t}\right) = Q\left(S_{t}, A_{t}\right)+\alpha\left[R_{t+1}+\gamma \max _{a'} Q\left(S_{t+1}, a'\right)-Q\left(S_{t}, A_{t}\right)\right]
+```  
 
 啥意思呢，一步步来看
 1.  Q学习有两种策略：目标策略和行为策略  
     目标策略是我们需要学习的策略，一般用$`\pi`$表示，直接在Q表格上使用贪心策略，取它下一步能得到的所有状态，即
-    ```math  \pi\left(s_{t+1}\right) = \underset{a^{\prime}}{\arg \max}\sim Q\left(s_{t+1}, a^{\prime}\right)```  
+```math
+  \pi\left(s_{t+1}\right) = \underset{a^{\prime}}{\arg \max}\sim Q\left(s_{t+1}, a^{\prime}\right)
+```  
     行为策略 $`\mu`$可以是一个随机的策略，与环境交互(采集轨迹或数据)，但我们采取 $`\varepsilon-`$贪心策略，让行为策略不至于是完全随机的，它是基于Q表格逐渐改进的  
 
 2.  我们可以构造 Q学习目标，Q学习的下一个动作都是通过arg max 操作选出来 的 (不管行为策略怎么探索、去哪探索，反正就是取奖励最大化下的策略)，于是我们可得  
-    ```math  \begin{aligned} R_{t+1}+\gamma Q\left(S_{t+1}, A^{\prime}\right) &=R_{t+1}+\gamma Q\left(S_{t+1},\arg \max ~Q\left(S_{t+1}, a^{\prime}\right)\right) \\ &=R_{t+1}+\gamma \max _{a^{\prime}} Q\left(S_{t+1}, a^{\prime}\right) \end{aligned}```  
+```math
+      \begin{aligned} R_{t+1}+\gamma Q\left(S_{t+1}, A^{\prime}\right) &=R_{t+1}+\gamma Q\left(S_{t+1},\arg \max ~Q\left(S_{t+1}, a^{\prime}\right)\right) \\ &=R_{t+1}+\gamma \max _{a^{\prime}} Q\left(S_{t+1}, a^{\prime}\right) \end{aligned}
+```  
 
 再次总结一下其与Sarsa的区别
 
@@ -619,7 +702,7 @@ Q-learning介绍得闲阐明一个问题，即所谓的同策略学习与异策�
 
 $`\tau = (s_{1},a_{1},r_{1},s_{2},a_{2},r_{2},...,s_{t},a_{t},r_{t})`$
 
-> 可能有读者注意到了，既然奖励是延后的，$`s_t```math  a_t`$后的奖励怎么用$`r_t`$而非$`r_{t+1}`$呢，事实上，sutton RL书上用$`S_0,A_0,R_1,S_1,A_1,R_2,S_2,A_2,R_3,\cdots,S_t,A_t,R_{t+1}`$表示整条轨迹，其实这样更规范，但考虑到不影响大局和下文的推导，本笔记则暂且不细究了
+> 可能有读者注意到了，既然奖励是延后的，$`s_t$,$a_t`$后的奖励怎么用$`r_t`$而非$`r_{t+1}`$呢，事实上，sutton RL书上用$`S_0,A_0,R_1,S_1,A_1,R_2,S_2,A_2,R_3,\cdots,S_t,A_t,R_{t+1}`$表示整条轨迹，其实这样更规范，但考虑到不影响大局和下文的推导，本笔记则暂且不细究了
 
 给定智能体或演员的策略参数$`\theta`$，可以计算某一条轨迹$`\tau`$发生的概率为『轨迹$`\tau`$来源于在特定的环境状态下采取特定动作的序列，而特定的状态、特定的动作又分别采样自智能体的动作概率分布$`p_{\theta }(a_{t}|s_{t})`$、状态的转换概率分布$`p(s_{t+1}|s_t,a_t)`$
 
