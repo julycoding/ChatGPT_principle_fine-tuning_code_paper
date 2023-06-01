@@ -109,7 +109,7 @@ ___
 
 对于这个问题，我们考虑一个很简单的问题，比如对于计算机，它是如何判断一个词的词性，是动词还是名词的呢？
 
-假定我们有一系列样本(x,y)，其中的 x 是词语，y 是它们的词性，我们要构建![f(x) \to y](https://latex.csdn.net/eq?f%28x%29%20%5Cto%20y)的映射：
+假定我们有一系列样本(x,y)，其中的 x 是词语，y 是它们的词性，我们要构建$`f(x) \to y`$的映射：
 
 1.  首先，这个数学模型 f（比如神经网络、SVM）只接受数值型输入；
 2.  而 NLP 里的词语是人类语言的抽象总结，是符号形式的（比如中文、英文、拉丁文等等）；
@@ -169,9 +169,9 @@ ___
     
     而计算句子概率的概率模型很多，n-gram模型便是其中的一种，什么是n-gram呢
     
-    假设一个长度为m的句子，包含这些词：![(w_1,w_2,w_3,..,w_m)](https://latex.csdn.net/eq?%28w_1%2Cw_2%2Cw_3%2C..%2Cw_m%29)，那么这个句子的概率（也就是这m个词共同出现的概率）是：![P\left ( sen = (w_1,w_2,\cdots ,w_m) \right ) = P(w_1)P(w_2|w_1)P(w_3|w_2,w_1)\cdots P(w_m|w_{m-1}\cdots w_1)](https://latex.csdn.net/eq?P%5Cleft%20%28%20sen%20%3D%20%28w_1%2Cw_2%2C%5Ccdots%20%2Cw_m%29%20%5Cright%20%29%20%3D%20P%28w_1%29P%28w_2%7Cw_1%29P%28w_3%7Cw_2%2Cw_1%29%5Ccdots%20P%28w_m%7Cw_%7Bm-1%7D%5Ccdots%20w_1%29)
+    假设一个长度为m的句子，包含这些词：![(w_1,w_2,w_3,..,w_m)](https://latex.csdn.net/eq?%28w_1%2Cw_2%2Cw_3%2C..%2Cw_m%29)，那么这个句子的概率（也就是这m个词共同出现的概率）是：$`P\left ( sen = (w_1,w_2,\cdots ,w_m) \right ) = P(w_1)P(w_2|w_1)P(w_3|w_2,w_1)\cdots P(w_m|w_{m-1}\cdots w_1)`$
     
-    一般来说，语言模型都是为了使得条件概率![P(w_t|w_1,w_2,..,w_{t-1})](https://latex.csdn.net/eq?P%28w_t%7Cw_1%2Cw_2%2C..%2Cw_%7Bt-1%7D%29)最大化，不过考虑到近因效应，当前词只与距离它比较近的![n](https://latex.csdn.net/eq?n)个词更加相关(一般![n](https://latex.csdn.net/eq?n)不超过5，所以局限性很大)
+    一般来说，语言模型都是为了使得条件概率$`P(w_t|w_1,w_2,..,w_{t-1})`$最大化，不过考虑到近因效应，当前词只与距离它比较近的n个词更加相关(一般n不超过5，所以局限性很大)
     
 
 ![](https://img-blog.csdnimg.cn/img_convert/c662ea4c1137ac8be4b1eaa11c6e3f06.png)
@@ -286,7 +286,7 @@ ___
 2.  第二步，计算输入嵌入与每个上下文嵌入的点积
   
     还记得点积的定义否  
-    两个向量a = \[a1, a2,…, an\]和b = \[b1, b2,…, bn\]的点积定义为：![a\cdot b = a_{1}b_{1} + a_{2}b_{2} + \cdots + a_{n}b_{n}](https://latex.csdn.net/eq?a%5Ccdot%20b%20%3D%20a_%7B1%7Db_%7B1%7D%20&plus;%20a_%7B2%7Db_%7B2%7D%20&plus;%20%5Ccdots%20&plus;%20a_%7Bn%7Db_%7Bn%7D)
+    两个向量a = \[a1, a2,…, an\]和b = \[b1, b2,…, bn\]的点积定义为：$`a\cdot b = a_{1}b_{1} + a_{2}b_{2} + \cdots + a_{n}b_{n}`$
     
     而这个**点积的结果意味着**『**输入**』**和**『**上下文各个嵌入**』**的各自相似性程度，结果越大代表越相似**。
     
@@ -403,7 +403,7 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 1.  在翻译“杰瑞”的时候，带有注意力机制的模型会体现出英文单词对于翻译当前中文单词不同的影响程度，比如给出类似这样一个概率分布值：（Tom,0.3）(Chase,0.2) (Jerry,0.5)，每个英文单词的概率代表了翻译当前单词“杰瑞”时，注意力分配模型分配给不同英文单词的注意力大小（类似我司七月在线开董事会，虽然每个人都有发言权，但对不同议题进行决策时，很明显对具体议题更擅长的人拥有更大的发言权，而这个发言权就像权重一样，不同的人对最终决策结果的产生有着不同大小的影响）
   
-2.  目标句子中的每个单词都应该学会其对应的源语句子中单词的注意力分配概率信息。这意味着在生成每个单词![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)的时候，原先都是相同的中间语义表示C会被替换成根据当前生成单词而不断变化的![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)（注：这里就是Attention模型的关键，即由固定的中间语义表示C换成了根据当前输出单词来调整成加入注意力模型的变化的![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)）。
+2.  目标句子中的每个单词都应该学会其对应的源语句子中单词的注意力分配概率信息。这意味着在生成每个单词$`y_{i}`$的时候，原先都是相同的中间语义表示C会被替换成根据当前生成单词而不断变化的$`C_{i}`$（注：这里就是Attention模型的关键，即由固定的中间语义表示C换成了根据当前输出单词来调整成加入注意力模型的变化的$`C_{i}`$）。
   
     ![](https://img-blog.csdnimg.cn/img_convert/78df8537c4b8e681e472668a776f4260.png)
     
@@ -411,17 +411,17 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
         
     ![](https://img-blog.csdnimg.cn/img_convert/9f07d90b3a5e0d7c42f3f0b4aace80fd.png)
     
-    而每个![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)可能对应着不同的源语句子单词的注意力分配概率分布，比如对于上面的英汉翻译来说，其对应的信息可能如下： 
+    而每个$`C_{i}`$可能对应着不同的源语句子单词的注意力分配概率分布，比如对于上面的英汉翻译来说，其对应的信息可能如下： 
     
     ![](https://img-blog.csdnimg.cn/img_convert/906501ef6328bf7f3ecc0f02cc57305d.png)
     
-    其中，![f_{2}](https://latex.csdn.net/eq?f_%7B2%7D)函数代表Encoder对输入英文单词的某种变换函数，比如如果Encoder是用的RNN模型的话，这个![f_{2}](https://latex.csdn.net/eq?f_%7B2%7D)函数的结果往往是某个时刻输入![x_{i}](https://latex.csdn.net/eq?x_%7Bi%7D)后隐层节点的状态值；g代表Encoder根据单词的中间表示合成整个句子中间语义表示的变换函数，一般的做法中，g函数就是对构成元素加权求和，即下列公式： 
+    其中，$`f_{2}`$函数代表Encoder对输入英文单词的某种变换函数，比如如果Encoder是用的RNN模型的话，这个$`f_{2}`$函数的结果往往是某个时刻输入$`x_{i}`$后隐层节点的状态值；g代表Encoder根据单词的中间表示合成整个句子中间语义表示的变换函数，一般的做法中，g函数就是对构成元素加权求和，即下列公式： 
     
     ![](https://img-blog.csdnimg.cn/img_convert/c6a6cb296455b36bf3416d3e91a6e3c9.png)
     
-    其中，![L_{x}](https://latex.csdn.net/eq?L_%7Bx%7D)代表输入句子Source的长度，![a_{ij}](https://latex.csdn.net/eq?a_%7Bij%7D)代表在Target输出第i个单词时Source输入句子中第j个单词的注意力分配系数，而![h_{j}](https://latex.csdn.net/eq?h_%7Bj%7D)则是Source输入句子中第j个单词的语义编码。
+    其中，$`L_{x}`$代表输入句子Source的长度，$`a_{ij}`$代表在Target输出第i个单词时Source输入句子中第j个单词的注意力分配系数，而$`h_{j}`$则是Source输入句子中第j个单词的语义编码。
     
-4.  假设![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)下标i就是上面例子所说的“ 汤姆” ，那么![L_{x}](https://latex.csdn.net/eq?L_%7Bx%7D)就是3，h1=f(“Tom”)、h2=f(“Chase”)、h3=f(“Jerry”)分别是输入句子每个单词的语义编码，对应的注意力模型权值则分别是0.6,0.2,0.2，所以g函数本质上就是个加权求和函数。如果形象表示的话，翻译中文单词“汤姆”的时候，数学公式对应的中间语义表示![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)的形成过程类似下图。
+4.  假设$`C_{i}`$下标i就是上面例子所说的“ 汤姆” ，那么$`L_{x}`$就是3，h1=f(“Tom”)、h2=f(“Chase”)、h3=f(“Jerry”)分别是输入句子每个单词的语义编码，对应的注意力模型权值则分别是0.6,0.2,0.2，所以g函数本质上就是个加权求和函数。如果形象表示的话，翻译中文单词“汤姆”的时候，数学公式对应的中间语义表示$`C_{i}`$的形成过程类似下图。
   
     ![](https://img-blog.csdnimg.cn/img_convert/3b516347112f14b5c0fde5aa215ba193.png)
     
@@ -438,8 +438,8 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 > 
 > 对于采用RNN的Decoder来说
 > 
-> 1.  在时刻i，如果要生成![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)单词，我们是可以知道Target在生成![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)之前的时刻i-1时，隐层节点在i-1时刻的输出值![H_{i-1}](https://latex.csdn.net/eq?H_%7Bi-1%7D)的（这是RNN结构的特性，如果忘了RNN结构特性请回顾参考文献3）
-> 2.  而我们的目的是要计算生成![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)时输入句子中的单词“Tom”、“Chase”、“Jerry”对![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)来说的注意力分配概率分布，那么可以用Target输出句子i-1时刻的隐层节点状态![H_{i-1}](https://latex.csdn.net/eq?H_%7Bi-1%7D)去一一和输入句子Source中每个单词对应的RNN隐层节点状态![h_{j}](https://latex.csdn.net/eq?h_%7Bj%7D)进行对比，即通过函数![F(h_{j},H_{i-1})](https://latex.csdn.net/eq?F%28h_%7Bj%7D%2CH_%7Bi-1%7D%29)来获得目标单词![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)和每个输入单词对应的对齐可能性，**这个F函数在不同论文里可能会采取不同的方法**，然后函数F的输出经过Softmax进行归一化就得到了符合概率分布取值区间的注意力分配概率分布数值
+> 1.  在时刻i，如果要生成$`y_{i}`$单词，我们是可以知道Target在生成$`y_{i}`$之前的时刻i-1时，隐层节点在i-1时刻的输出值$`H_{i-1}`$的（这是RNN结构的特性，如果忘了RNN结构特性请回顾参考文献3）
+> 2.  而我们的目的是要计算生成$`y_{i}`$时输入句子中的单词“Tom”、“Chase”、“Jerry”对$`y_{i}`$来说的注意力分配概率分布，那么可以用Target输出句子i-1时刻的隐层节点状态$`H_{i-1}`$去一一和输入句子Source中每个单词对应的RNN隐层节点状态$`h_{j}`$进行对比，即通过函数$`F(h_{j},H_{i-1})`$来获得目标单词$`y_{i}`$和每个输入单词对应的对齐可能性，**这个F函数在不同论文里可能会采取不同的方法**，然后函数F的输出经过Softmax进行归一化就得到了符合概率分布取值区间的注意力分配概率分布数值
 
 对上面这段，还是有必要再好好解释一下
 
@@ -586,17 +586,17 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 通过向量方式计算自注意力的第一步，就是从每个编码器的输入向量(即每个单词的词向量)生成三个向量：查询向量query-vec、键向量key-vec、值向量value-vec
 
-至于它们的生成方法是把输入的向量分别乘以三个不同的权重矩阵![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)、![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)、![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)，得到Q、K、V，而这些权重矩阵是在模型训练阶段中训练出来的
+至于它们的生成方法是把输入的向量分别乘以三个不同的权重矩阵$`W^{Q}`$、$`W^{K}`$、$`W^{V}`$，得到Q、K、V，而这些权重矩阵是在模型训练阶段中训练出来的
 
 对于上述这两段可能会有同学对一些细节有疑问，而有的文章可能都会觉得不言而喻，因为本文面向初学者，所以我把相关细节一并解释下：
 
 1.  首先，查询向量、键向量、值向量这三个向量的维度在论文中设置的是64，在维度上比词嵌入向量更低，因为词嵌入和编码器的输入/输出向量的维度是512，但值得注意的是也不是必须比编码器输入输出的维数小，这样做主要是为了让后续多头注意力的计算更稳定  
     （在下文你会看到，transformer通过多头注意力机制multi headed attention，对每个512维的输入向量都设置了8个头，不同的头关注每个输入向量不同的部分，而你发现没有：512/8 = 64，且再多说一句，也可以设置为2个头，不一定非得设置为8个头）
-2.  其次，对于权重矩阵![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)/![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)/![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)如何训练出来的，还是标准老套路：先随机初始化，然后在损失函数中表示出来，最后通过反向传播不断优化学习得出。至于什么是反向传播，请参见[参考文献17](https://www.julyedu.com/questions/interview-detail?kp_id=26&cate=%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0&quesId=2921 "参考文献17")）
+2.  其次，对于权重矩阵$`W^{Q}`$/$`W^{K}`$/$`W^{V}`$如何训练出来的，还是标准老套路：先随机初始化，然后在损失函数中表示出来，最后通过反向传播不断优化学习得出。至于什么是反向传播，请参见[参考文献17](https://www.julyedu.com/questions/interview-detail?kp_id=26&cate=%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0&quesId=2921 "参考文献17")）
 
-有了权重矩阵后，对于单词![X_{1}](https://latex.csdn.net/eq?X_%7B1%7D)、![X_{2}](https://latex.csdn.net/eq?X_%7B2%7D)分别而言（假定X1是Thinking，X2是Machines）：
-- ![X_{1}](https://latex.csdn.net/eq?X_%7B1%7D)与![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)权重矩阵相乘得到与这个单词相关的查询向量![q_{1}](https://latex.csdn.net/eq?q_%7B1%7D)、![X_{1}](https://latex.csdn.net/eq?X_%7B1%7D)与![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)权重矩阵相乘得到与这个单词相关的键向量***\*![k_{1}](https://latex.csdn.net/eq?k_%7B1%7D)\****、![X_{1}](https://latex.csdn.net/eq?X_%7B1%7D)与![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)权重矩阵相乘得到与这个单词相关的值向量![v_{1}](https://latex.csdn.net/eq?v_%7B1%7D)
-- 对于单词![X_{2}](https://latex.csdn.net/eq?X_%7B2%7D)而言，依上类推：![X_{2}](https://latex.csdn.net/eq?X_%7B2%7D)分别与![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)、![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)、![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)相乘得到该单词的查询向量![q_{2}](https://latex.csdn.net/eq?q_%7B2%7D)、键向量![k_{2}](https://latex.csdn.net/eq?k_%7B2%7D)、值向量![v_{2}](https://latex.csdn.net/eq?v_%7B2%7D)
+有了权重矩阵后，对于单词$`X_{1}`$、$`X_{2}`$分别而言（假定X1是Thinking，X2是Machines）：
+- $`X_{1}`$与$`W^{Q}`$权重矩阵相乘得到与这个单词相关的查询向量$`q_{1}`$、$`X_{1}`$与$`W^{K}`$权重矩阵相乘得到与这个单词相关的键向量$`k_{1}`$、$`X_{1}`$与$`W^{V}`$权重矩阵相乘得到与这个单词相关的值向量$`v_{1}`$
+- 对于单词$`X_{2}`$而言，依上类推：$`X_{2}`$分别与$`W^{Q}`$、$`W^{K}`$、$`W^{V}`$相乘得到该单词的查询向量$`q_{2}`$、键向量$`k_{2}`$、值向量$`v_{2}`$
 
 ![](https://img-blog.csdnimg.cn/img_convert/74843c907a1ea3ff862ff898dc22fce5.jpeg)
 
@@ -650,7 +650,7 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
     ![](https://img-blog.csdnimg.cn/img_convert/023f00c574399d072db409c581052dea.webp?x-oss-process=image/format,png)
     
 
-最终每个词的输出向量![z_i](https://latex.csdn.net/eq?z_i)都包含了其他词的信息，每个词都不再是孤立的了，而且词与词的相关程度可以通过softmax输出的权重进行分析
+最终每个词的输出向量$`z_i`$都包含了其他词的信息，每个词都不再是孤立的了，而且词与词的相关程度可以通过softmax输出的权重进行分析
 
 ![](https://img-blog.csdnimg.cn/05b64b744bc74d828e0394a95ce4e487.png)
 
@@ -659,7 +659,7 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 **3.1.5 通过矩阵运算实现自注意力机制**
 
-第一步是计算查询矩阵、键矩阵和值矩阵。为此，我们将输入词向量合并成输入矩阵![X](https://latex.csdn.net/eq?X)（矩阵的每一行代表输入句子中的一个单词，所以整个矩阵就代表整个句子），将其乘以我们训练的权重矩阵(![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)/![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)/![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D))
+第一步是计算查询矩阵、键矩阵和值矩阵。为此，我们将输入词向量合并成输入矩阵X（矩阵的每一行代表输入句子中的一个单词，所以整个矩阵就代表整个句子），将其乘以我们训练的权重矩阵($`W^{Q}`$/$`W^{K}`$/$`W^{V}`$)
 
 ![](https://img-blog.csdnimg.cn/img_convert/1bed15c3749c8760dc9975361148523a.png)
 
@@ -693,15 +693,15 @@ OK，接下来，我们将看到对于“多头”注意机制，我们有多个
 
 ![](https://img-blog.csdnimg.cn/img_convert/a6ab1515a24fc63691636372d2aea5c4.jpeg)
 
-在“多头”注意机制下，我们为每个头保持独立的查询/键/值权重矩阵，从而产生不同的查询/键/值矩阵。和之前一样，我们拿![X](https://latex.csdn.net/eq?X)乘以![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)/![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)/![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)矩阵来产生查询/键/值矩阵。
+在“多头”注意机制下，我们为每个头保持独立的查询/键/值权重矩阵，从而产生不同的查询/键/值矩阵。和之前一样，我们拿X乘以$`W^{Q}`$/$`W^{K}`$/$`W^{V}`$矩阵来产生查询/键/值矩阵。
 
 如果我们做与上述相同的自注意力计算，只需8次不同的权重矩阵运算，我们就会得到8个不同的Z矩阵。
 
 ![](https://img-blog.csdnimg.cn/img_convert/fdbd007f0ebeef9f0a4402256e9184c1.png)
 
-这给我们带来了一点挑战。前馈层没法一下子接收8个矩阵，它需要一个单一的矩阵(最终这个单一**矩阵类似输入矩阵**![X](https://latex.csdn.net/eq?X)**那样，矩阵中每个的行向量对应一个单词，比如矩阵的第一行对应单词Thinking、矩阵的第二行对应单词Machines**)。 
+这给我们带来了一点挑战。前馈层没法一下子接收8个矩阵，它需要一个单一的矩阵(最终这个单一**矩阵类似输入矩阵**X**那样，矩阵中每个的行向量对应一个单词，比如矩阵的第一行对应单词Thinking、矩阵的第二行对应单词Machines**)。 
 
-所以我们需要一种方法把这8个矩阵合并成一个矩阵。那该怎么做？其实可以直接把这些矩阵拼接在一起，然后乘以一个附加的权重矩阵![W^{o}](https://latex.csdn.net/eq?W%5E%7BO%7D)。
+所以我们需要一种方法把这8个矩阵合并成一个矩阵。那该怎么做？其实可以直接把这些矩阵拼接在一起，然后乘以一个附加的权重矩阵$`W^{o}`$。
 
 ![](https://img-blog.csdnimg.cn/img_convert/95d07b21ade2fd02d7e0fdb10cc2b127.jpeg)
 
@@ -763,7 +763,7 @@ OK，接下来，我们将看到对于“多头”注意机制，我们有多个
 
 即将每个位置编号，从而每个编号对应一个向量，最终通过**结合位置向量和词向量，作为输入embedding**，就给每个词都引入了一定的位置信息，这样Attention就可以分辨出不同位置的词了：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/19ac49ddfe8a4c7096234c306eeb4111.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBATG9saXRhQW5u,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center)
+![](https://img-blog.csdnimg.cn/19ac49ddfe8a4c7096234c306eeb4111.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBATG9saXRhQW5u,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center)
 
  关于『使用位置编码表示序列的位置』的细节请参看此文的1.1节：[类ChatGPT代码级解读：如何从零起步实现Transformer、llama/ChatGLM](https://blog.csdn.net/v_JULY_v/article/details/130090649 "类ChatGPT代码级解读：如何从零起步实现Transformer、llama/ChatGLM")
 
