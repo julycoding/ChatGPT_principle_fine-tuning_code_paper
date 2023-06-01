@@ -521,21 +521,9 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
 
 为承上启下更为总结，再说一个问题，即七月ChatGPT课群里有学问提问：校长 在A2C算法中，这个优势函数中的计算$`A(s,a) =Q(s,a) - V(s)`$ 其中这个$`Q(s,a)`$和$`V(s)`$是由神经网络模拟出来的吗
 
-> 关于什么是优势函数 下文会具体阐述，咱们就用上文的知识来一步步推导    
+> 关于什么是优势函数 下文会具体阐述，咱们就用上文的知识来一步步推导  
 > 因  
-```math
-  \begin{aligned}G_t &= R_{t+1} + \gamma \cdot R_{t+2}+ \gamma ^2\cdot R_{t+3} + \gamma ^3\cdot R_{t+4}+\cdots \\&= R_{t+1} + \gamma (R_{t+2}+ \gamma \cdot R_{t+3} + \gamma ^2\cdot R_{t+4}+\cdots) \\&= R_{t+1} + \gamma G_{t+1} \end{aligned}
-```  
-> 
-> 且  
-```math
-  \begin{aligned} P\left \{ G_{t+1}|S_t=s \right \} &= \frac{P\left \{ G_{t+1},S_t=s \right \}}{P(S_t=s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1},S_{t+1}=s',S_t =s \right \}}{P(S_t =s)} \\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s',S_t =s)}{P(S_t =s)}\\&= \frac{\sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t =s)P(S_t =s)}{P(S_t =s)}\\&= \sum_{s'}^{}P\left \{ G_{t+1}|S_{t+1}=s',S_t=s \right \}P(S_{t+1}=s'|S_t=s) \end{aligned}
-```  
-> 
-> $`故G_t =R_{t+1} + \gamma * V_{t+1}`$，而这就是Q  
-```math
-  Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
-```  
+> $`\begin{aligned} Q_\pi (s,a) &= E[G_t|S_t = s,A_t = a] \\&= E[R_{t+1} + \gamma G_{t+1} | S_t =s,A_t = a] \\&= E[R_{t+1}|S_t = s,A_t = a] + \gamma E[ G_{t+1} | S_t =s,A_t = a] \\&= R(s,a) + \gamma \sum_{s'}^{} V_\pi (S_{t+1}) P[S_{t+1} = s' |S_t =s,A_t = a ] \\&= R(s,a) + \gamma \sum_{s'}^{} P_{ss'}^{a}V_\pi (s') \end{aligned}`$  
 > 从而求解Q时，算是实际奖励$`R + V`$，而$`V`$通过critic网络学习(比如通过蒙特卡洛或时序差分),  
 > 最终$`A(s, a) = Q(s,a) - V(s)`$  
 > 相当于如春天所说，实践中只需要$`V(s)`$用神经网络来实现就行，因为$`Q(s,a)`$已经可以被$`V(s)`$和$`R`$表示了，不需要再另外实现.
@@ -552,7 +540,7 @@ Q_\pi (s,a) = R(s,a) + \gamma \sum_{s' \in S}^{}P(s'|s,a)V_\pi (s')
   $`\rightarrow`$如果有对环境的建模，    
   那么智能体便可以在执行动作前得知状态转移的情况即$`p(s'|s,a)`$和奖励$`R(s,a)`$，也就不需要实际执行动作收集这些数据； 
 
-  $`\rightarrow`$ 否则便需要进行采样，通过与环境的交互得到下一步的状态和奖励，然后仅依靠采样得到的数据更新策略    
+  $`\rightarrow`$ 否则便需要进行采样，通过与环境的交互得到下一步的状态和奖励，然后仅依靠采样得到的数据更新策略  
 
 + 无模型的强化学习(Model-free RL)，又分为  
   **基于价值**的强化学习(Value-based RL)，其会学习并贪婪的选择值最大的动作，即$`a =\underset{a}{\arg \max}\ Q(s,a)`$,最经典的便是off-policy模式的Q-learning和on-policy模式的SARSA，一般得到的是确定性策略，下文第三部分重点介绍.  
