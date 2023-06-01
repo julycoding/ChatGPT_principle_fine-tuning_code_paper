@@ -904,7 +904,7 @@ $`J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\t
 $`\mathbb{E}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]`$
 >
 > 比如，虽然上述公式成立，但如果不是计算期望值，而是
->
+>+  计算方差时$'Var_{x∼p}[f(x)]'$和$'Var_{x∼q}[f(x)\frac{p(x)}{q(x)}]'$是不一样的
 > 因为两个随机变量的平均值相同，并不代表它们的方差相同
 >
 > 此话怎讲？以下是推导过程：
@@ -1026,10 +1026,10 @@ TRPO的问题在于把 KL 散度约束当作一个额外的约束，没有放在
 上述流程有一个细节并没有讲到，即$`\beta`$是怎么取值的呢，事实上，$`\beta`$是可以动态调整的，故称之为自适应KL惩罚(adaptive KL penalty)，具体而言
 
 * 先设一个可以接受的 KL 散度的最大值$`KL_{max}`$
-假设优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，**KL 散度值太大导致$`KL(\theta,\theta')>KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过大(即学习率/步长过大)**，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太弱而没有发挥作用，故增大惩罚把$`\beta`$增大
+假设优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，**KL 散度值太大导致$`KL(\theta,\theta^{\prime})>KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过大(即学习率/步长过大)**，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太弱而没有发挥作用，**故增大惩罚把$`\beta`$增大**
 * 再设一个 KL 散度的最小值$`KL_{min}`$
   如果优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，
-  KL散度值比最小值还要小导致$`KL(\theta,\theta')<KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过小，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太强了，我们担心它只优化后一项，使$`\theta`$与$`\theta'`$一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
+  KL散度值比最小值还要小导致$`KL(\theta,\theta^{\prime})<KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过小，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太强了，我们担心它只优化后一项，使$`\theta`$与$`\theta'`$一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
 
 > 关于$`\beta`$具体怎么设置的？除了上面提到的自适应KL惩罚(adaptive KL penalty)，来自2017年发表的PPO论文
 >
@@ -1089,10 +1089,22 @@ $`{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t}
 ```math
 \begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}
 ```
->
+>+   如果$'A^{\theta'}(s_t,a_t)'$大于0且$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}'$大于$'(1+\epsilon)'$
+则相当于第二部分是$'(1+\epsilon)×A^{\theta'}(s_t,a_t)'$，和第一部分$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)'$对比取更小值当然是$'(1+\epsilon)'$的截断值： $'(1+\epsilon)*A^{\theta'}(s_t,a_t)'$
+
+>+   如果$'A^{\theta'}(s_t,a_t)'大于0且$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}'$小于$'(1-\epsilon)'$
+则相当于第二部分是$'(1-\epsilon)*A^{\theta'}(s_t,a_t)'$，和第一部分$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)'$对比取更小值当然是原函数值： $'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)'$
+
+
 > ![](./assets/images/RL_simple_primer/0bb3ab43b467ce1071d28a89537abc9c.png)
 >
 > 反之，**如果** $`A^{\theta'}(s_t,a_t)`$ **小于0，则最终目标函数的取值为了更小则和** $`A^{\theta'}(s_t,a_t)`$**大于0时反过来**，毕竟加了个负号自然一切就不同了，为方便初学者一目了然，咱们还是把计算过程列出来，即
+> 
+>+   如果$'A^{\theta'}(s_t,a_t)'小于0且$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}'$大于$'(1+\epsilon)'$
+则相当于第二部分是$'(1+\epsilon)*A^{\theta'}(s_t,a_t)'$，和第一部分$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)'$对比取更小值当然是原函数值： $'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)'$
+>
+>+   如果$'A^{\theta'}(s_t,a_t)'$小于0且$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}'$小于$'(1-\epsilon)'$
+则相当于第二部分是$'(1-\epsilon)×A^{\theta'}(s_t,a_t)'$，和第一部分$'\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)'$对比取更小值当然是$'(1-\epsilon)'$的截断值： $'(1-\epsilon)*A^{\theta'}(s_t,a_t)'$
 
 ### 4.4.3 PPO算法的一个简单实现：对话机器人
 
