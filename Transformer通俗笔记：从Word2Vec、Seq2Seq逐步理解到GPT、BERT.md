@@ -118,7 +118,7 @@ ___
 5.  在各种词向量中，有一个简单的词向量是one-hot encoder。所谓one-hot编码，本质上是用一个只含一个 1、其他都是 0 的向量来唯一表示词语  
     当然，不是所有的编码都是01编码，且one-hot编码无法反应词与词之间的语义相似度
     
-    ![](https://img-blog.csdnimg.cn/20191024181316166.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3ZfSlVMWV92,size_16,color_FFFFFF,t_70)
+![](https://img-blog.csdnimg.cn/20191024181316166.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3ZfSlVMWV92,size_16,color_FFFFFF,t_70)
     
 
 这就是所谓的词嵌入了，而**一个单词表达成Word Embedding后，便很容易找出语义相近的其它词汇**
@@ -349,13 +349,13 @@ Seq2Seq（Sequence-to-sequence）正如字面意思：输入一个序列，输�
 > 
 > 在学习RNN之前，首先要了解一下最基本的单层网络，它的结构如下图所示：
 > 
-> ![](https://img-blog.csdnimg.cn/img_convert/50aebf29216b34ee48f4432404748ea0.png)
+![](https://img-blog.csdnimg.cn/img_convert/50aebf29216b34ee48f4432404748ea0.png)
 > 
 >  输入是x，经过变换$`Wx+b`$和激活函数f，得到输出y。相信大家对这个已经非常熟悉了。
 > 
 > 在实际应用中，我们还会遇到很多序列形的数据：
 > 
-> ![](https://img-blog.csdnimg.cn/img_convert/de565ecf43e0bda278ce99eebd875322.png)
+![](https://img-blog.csdnimg.cn/img_convert/de565ecf43e0bda278ce99eebd875322.png)
 > 
 >  如：
 > 
@@ -367,17 +367,17 @@ Seq2Seq（Sequence-to-sequence）正如字面意思：输入一个序列，输�
 > 
 > 为了建模序列问题，RNN引入了隐状态h（hidden state）的概念，**隐状态h可以对序列形的数据提取特征，接着再转换为输出**。
 > 
-> 先从![h_{1}](https://private.codecogs.com/gif.latex?h_%7B1%7D)计算开始看：
+> 先从$`h_{1}`$计算开始看：
 > 
-> ![](https://img-blog.csdnimg.cn/img_convert/f22cb1de22144ad6806b83acb3fb45a4.png)
+![](https://img-blog.csdnimg.cn/img_convert/f22cb1de22144ad6806b83acb3fb45a4.png)
 > 
 > RNN可以被看做是上述同一神经网络的多次复制，每个神经网络模块会把消息传递给下一个：
 > 
-> ![](https://img-blog.csdnimg.cn/img_convert/eb598be0682804c2e3896176d00243b6.webp?x-oss-process=image/format,png)
+![](https://img-blog.csdnimg.cn/img_convert/eb598be0682804c2e3896176d00243b6.webp?x-oss-process=image/format,png)
 > 
 > 当然，更多通常是其变种LSTM或者GRU
 > 
-> ![](https://img-blog.csdnimg.cn/img_convert/7df8e797439589e7305d3bb1d5e39be5.webp?x-oss-process=image/format,png)
+![](https://img-blog.csdnimg.cn/img_convert/7df8e797439589e7305d3bb1d5e39be5.webp?x-oss-process=image/format,png)
 
 这样你就明白了吧，而只要是符合类似的框架，都可以统称为 Encoder-Decoder 模型。
 
