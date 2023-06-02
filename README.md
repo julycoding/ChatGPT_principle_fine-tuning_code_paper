@@ -2,7 +2,7 @@
 ## 第一部分 项目背景
 ChatGPT一经推出便火爆全球，为了彻底写清楚ChatGPT背后的所有关键细节，July从1月初写到5月底仍未完工，过程中涉及到多篇文章(RL 论文 项目 CV多模态)，再加上之前写的Transformer、RL数学基础等多篇笔记，成了一个大系列：
 
-- [ChatGPT技术原理解析：从RL之PPO算法、RLHF到GPT4、instructGPT.md](https://github.com/julycoding/ChatGPT_principle_fine-tuning_code_paper/blob/main/ChatGPT%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8ERL%E4%B9%8BPPO%E7%AE%97%E6%B3%95%E3%80%81RLHF%E5%88%B0GPT4%E3%80%81instructGPT.md)
+- [ChatGPT技术原理解析：从RL之PPO算法、RLHF到GPT4、instructGPT](https://github.com/julycoding/ChatGPT_principle_fine-tuning_code_paper/blob/main/ChatGPT%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8ERL%E4%B9%8BPPO%E7%AE%97%E6%B3%95%E3%80%81RLHF%E5%88%B0GPT4%E3%80%81instructGPT.md)
 - [Transformer通俗笔记：从Word2Vec、Seq2Seq逐步理解到GPT、BERT](https://github.com/julycoding/ChatGPT_principle_fine-tuning_code_paper/blob/main/Transformer%E9%80%9A%E4%BF%97%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BB%8EWord2Vec%E3%80%81Seq2Seq%E9%80%90%E6%AD%A5%E7%90%86%E8%A7%A3%E5%88%B0GPT%E3%80%81BERT.md)
 - RL所需的微积分/概率统计基础、最优化基础
 - [强化学习极简入门：通俗理解MDP、DP MC TC和Q学习、策略梯度、PPO](https://github.com/julycoding/ChatGPT_principle_fine-tuning_code_paper/blob/main/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%9E%81%E7%AE%80%E5%85%A5%E9%97%A8%EF%BC%9A%E9%80%9A%E4%BF%97%E7%90%86%E8%A7%A3MDP%E3%80%81DP%20MC%20TC%E5%92%8CQ%E5%AD%A6%E4%B9%A0%E3%80%81%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6%E3%80%81PPO.md)
