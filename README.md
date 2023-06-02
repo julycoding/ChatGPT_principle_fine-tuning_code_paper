@@ -2,7 +2,7 @@
 ## 第一部分 项目背景
 ChatGPT一经推出便火爆全球，为了彻底写清楚ChatGPT背后的所有关键细节，July从1月初写到5月底仍未完工，过程中涉及到多篇文章(RL 论文 项目 CV多模态)，再加上之前写的Transformer、RL数学基础等多篇笔记，成了一个大系列：
 
-- ChatGPT技术原理解析：从RL之PPO算法、RLHF到GPT4、instructGPT (@corleytd 、@zh2nlp 同步，@EXPERT review)
+- ChatGPT技术原理解析：从RL之PPO算法、RLHF到GPT4、instructGPT (ChatGPT技术原理解析：从RL之PPO算法、RLHF到GPT4、instructGPT.md)
 - Transformer通俗笔记：从Word2Vec、Seq2Seq逐步理解到GPT、BERT (@wangzaistone @ 同步)
 - RL所需的微积分/概率统计基础、最优化基础
 - 强化学习极简入门：通俗理解MDP、DP MC TC和Q学习、策略梯度、PPO (@hyq-401、@EthanStewart2023 同步)
