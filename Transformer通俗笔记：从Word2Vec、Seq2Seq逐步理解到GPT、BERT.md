@@ -495,7 +495,7 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 自从2017年此文《[Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf "Attention is All You Need")》提出来Transformer后，便开启了大规模预训练的新时代，也在历史的长河中一举催生出了BERT这样的大一统模型。
 
-> ![](https://img-blog.csdnimg.cn/0a9151721dee403cbe55614f36f6fe02.png)
+> <div><img src="https://img-blog.csdnimg.cn/0a9151721dee403cbe55614f36f6fe02.png"/></div>
 
 有兴趣的，可以回顾下。比如2018年3月份华盛顿大学提出ELMO、2018年6月份OpenAI提出GPT、2018年10月份Google提出BERT、2019年6月份CMU+google brain提出XLNet等等。
 
