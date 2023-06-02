@@ -4,9 +4,9 @@
 
 直到今天早上，刷到CSDN上一篇讲BERT的文章，号称一文读懂，我读下来之后，假定我是初学者，读不懂。
 
-关于BERT的笔记，其实一两年前就想写了，迟迟没动笔的原因是国内外已经有很多不错的资料，比如国外作者Jay Alammar的一篇图解[Transformer](https://so.csdn.net/so/search?q=Transformer&spm=1001.2101.3001.7020)：[The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer "The Illustrated Transformer")，再比如国内张俊林老师的这篇《[说说NLP中的预训练技术发展史：从Word Embedding到Bert模型](https://www.julyedu.com/questions/interview-detail?kp_id=30&cate=NLP&quesId=3008 "说说NLP中的预训练技术发展史：从Word Embedding到Bert模型")》。
+关于BERT的笔记，其实一两年前就想写了，迟迟没动笔的原因是国内外已经有很多不错的资料，比如国外作者Jay Alammar的一篇图解[Transformer](https://so.csdn.net/so/search?q=Transformer&spm=1001.2101.3001.7020)：[The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer "The Illustrated Transformer")，再比如国内张俊林老师的这篇《[说说NLP中的预训练技术发展史：从Word Embedding到Bert模型](https://www.julyedu.com/questions/interview-detail?kp_id=30&cate=NLP&quesId=3008)》。
 
-本文基本上可以认为是对这几篇文章在内的学习笔记(配图也基本上都来自文末的参考文献)，但本篇笔记准备面对没有任何[NLP](https://so.csdn.net/so/search?q=NLP&spm=1001.2101.3001.7020)模型背景的文科生/初学者来写，不出现任何没有解释的概念。作为初学者的你，读**本文之前，很多文章你看不懂看不下去，读本文之后，网上1/3值得看的文章你都看得懂、看得下去，本文的目的之一就达到了**！
+本文基本上可以认为是对这几篇文章在内的学习笔记(配图也基本上都来自文末的参考文献)，但本篇笔记准备面对没有任何[NLP](https://so.csdn.net/so/search?q=NLP&spm=1001.2101.3001.7020)模型背景的文科生/初学者来写不出现任何没有解释的概念。作为初学者的你，读**本文之前，很多文章你看不懂看不下去，读本文之后，网上1/3值得看的文章你都看得懂、看得下去，本文的目的之一就达到了**！
 
 毕竟据我观察，网上关于Transformer/BERT的文章无外乎是以下这几种情况：
 
@@ -109,22 +109,22 @@ ___
 
 对于这个问题，我们考虑一个很简单的问题，比如对于计算机，它是如何判断一个词的词性，是动词还是名词的呢？
 
-假定我们有一系列样本(x,y)，其中的 x 是词语，y 是它们的词性，我们要构建![f(x) \to y](https://latex.csdn.net/eq?f%28x%29%20%5Cto%20y)的映射：
+假定我们有一系列样本(x,y)，其中的 x 是词语，y 是它们的词性，我们要构建$`f(x) \to y`$的映射：
 
 1.  首先，这个数学模型 f（比如神经网络、SVM）只接受数值型输入；
 2.  而 NLP 里的词语是人类语言的抽象总结，是符号形式的（比如中文、英文、拉丁文等等）；
 3.  如此一来，咱们便需要把NLP里的词语转换成数值形式，或者嵌入到一个数学空间里；
 4.  进一步，可以把文本分散嵌入到另一个离散空间，称作分布式表示，又称为词嵌入（word embedding）或词向量
 5.  在各种词向量中，有一个简单的词向量是one-hot encoder。所谓one-hot编码，本质上是用一个只含一个 1、其他都是 0 的向量来唯一表示词语  
-    当然，不是所有的编码都是01编码，且one-hot编码无法反应词与词之间的语义相似度
-    
-    ![](https://img-blog.csdnimg.cn/20191024181316166.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3ZfSlVMWV92,size_16,color_FFFFFF,t_70)
+
+当然，不是所有的编码都是01编码，且one-hot编码无法反应词与词之间的语义相似度
+
+![](https://img-blog.csdnimg.cn/20191024181316166.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3ZfSlVMWV92,size_16,color_FFFFFF,t_70)
     
 
 这就是所谓的词嵌入了，而**一个单词表达成Word Embedding后，便很容易找出语义相近的其它词汇**
 
 再举一个例子，这是一个单词“king”的词嵌入（在维基百科上训练的GloVe向量）：
-
 \[ 0.50451 , 0.68607 , -0.59517 , -0.022801, 0.60046 , -0.13498 , -0.08813 , 0.47377 , -0.61798 , -0.31012 , -0.076666, 1.493 , -0.034189, -0.98173 , 0.68229 , 0.81722 , -0.51874 , -0.31503 , -0.55809 , 0.66421 , 0.1961 , -0.13495 , -0.11476 , -0.30344 , 0.41177 , -2.223 , -1.0756 , -1.0783 , -0.34354 , 0.33505 , 1.9927 , -0.04234 , -0.64319 , 0.71125 , 0.49159 , 0.16754 , 0.34344 , -0.25663 , -0.8523 , 0.1661 , 0.40102 , 1.1685 , -1.0137 , -0.21585 , -0.15155 , 0.78321 , -0.91241 , -1.6106 , -0.64426 , -0.51042 \]
 
 这是一个包含50个数字的列表。通过观察数值我们看不出什么，但是让我们稍微给它可视化，以便比较其它词向量。故我们把所有这些数字放在一行：
@@ -163,16 +163,16 @@ ___
 
 系统是根据什么来预测/提示下一个单词的呢？它的依据有两点
 
-1.  在上面这个手机截屏中，该模型已经接收到了两个绿色单词(thou shalt)后
-2.  为此推荐一组单词且要计算比如“not” 是其中最有可能被选用的一个  
-    说白了，就是要让预测的单词连成整个句子后最像一句人话，所以便得计算加上某个预测单词成为整个句子的概率
-    
-    而计算句子概率的概率模型很多，n-gram模型便是其中的一种，什么是n-gram呢
-    
-    假设一个长度为m的句子，包含这些词：![(w_1,w_2,w_3,..,w_m)](https://latex.csdn.net/eq?%28w_1%2Cw_2%2Cw_3%2C..%2Cw_m%29)，那么这个句子的概率（也就是这m个词共同出现的概率）是：![P\left ( sen = (w_1,w_2,\cdots ,w_m) \right ) = P(w_1)P(w_2|w_1)P(w_3|w_2,w_1)\cdots P(w_m|w_{m-1}\cdots w_1)](https://latex.csdn.net/eq?P%5Cleft%20%28%20sen%20%3D%20%28w_1%2Cw_2%2C%5Ccdots%20%2Cw_m%29%20%5Cright%20%29%20%3D%20P%28w_1%29P%28w_2%7Cw_1%29P%28w_3%7Cw_2%2Cw_1%29%5Ccdots%20P%28w_m%7Cw_%7Bm-1%7D%5Ccdots%20w_1%29)
-    
-    一般来说，语言模型都是为了使得条件概率![P(w_t|w_1,w_2,..,w_{t-1})](https://latex.csdn.net/eq?P%28w_t%7Cw_1%2Cw_2%2C..%2Cw_%7Bt-1%7D%29)最大化，不过考虑到近因效应，当前词只与距离它比较近的![n](https://latex.csdn.net/eq?n)个词更加相关(一般![n](https://latex.csdn.net/eq?n)不超过5，所以局限性很大)
-    
+1. 在上面这个手机截屏中，该模型已经接收到了两个绿色单词(thou shalt)后
+
+2. 为此推荐一组单词且要计算比如“not” 是其中最有可能被选用的一个  
+   说白了，就是要让预测的单词连成整个句子后最像一句人话，所以便得计算加上某个预测单词成为整个句子的概率
+
+   而计算句子概率的概率模型很多，n-gram模型便是其中的一种，什么是n-gram呢
+
+   假设一个长度为m的句子，包含这些词：$`(w_1,w_2,w_3,..,w_m)`$，那么这个句子的概率（也就是这m个词共同出现的概率)是：$`P\left ( sen = (w_1,w_2,\cdots ,w_m) \right ) = P(w_1)P(w_2|w_1)P(w_3|w_2,w_1)\cdots P(w_m|w_{m-1}\cdots w_1)`$
+
+   一般来说，语言模型都是为了使得条件概率$`P(w_t|w_1,w_2,..,w_{t-1})`$最大化，不过考虑到近因效应，当前词只与距离它比较近的n个词更加相关(一般n不超过5，所以局限性很大)
 
 ![](https://img-blog.csdnimg.cn/img_convert/c662ea4c1137ac8be4b1eaa11c6e3f06.png)
 
@@ -242,8 +242,12 @@ ___
 
 上述的这种『以上下文词汇预测当前词』架构被称为连续词袋(CBOW)，简单引用下[此文](https://blog.csdn.net/v_JULY_v/article/details/102708459 "此文")的内容做个简单概括（详见原文或参考文献16）：
 
->  CBOW包括以下三层：
-> 
+>   CBOW包括以下三层：
+>  输入层：包含$`Context(w)`$中2c个词的词向量$`\{v(Context(w_1)),v(Context(w_2)),...,v(Context(w_2))\} \in R^m`$，其中，v表示单词的向量化表示函数，相当于此函数把一个个单词转化成了对应的向量化表示，2c表示上下文取的总词数，m表示向量的维度；
+>  投影层：将输入层的2c个向量做累加求和；
+>  输出层：按理我们要通过确定的上下文决定一个我们想要的中心词，但怎么决定想要的中心词具体是$`w_1,w_2..w_t..w_N`$中的哪个呢？
+>  通过计算各个可能中心词的概率大小，取概率最大的词便是我们想要的中心词，相当于是针对一个N维数组进行多分类，但计算复杂度太大，所以输出层改造成了一棵Huffman树，以语料中出现过的词当叶子结点，然后各个词出现的频率大小做权重 
+
 > ![](https://img-blog.csdnimg.cn/2019122823361086.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3ZfSlVMWV92,size_16,color_FFFFFF,t_70)
 
 还有另一种架构，刚好反过来，根据当前词推测当前单词可能的前后单词，这种架构就是所谓的Skipgram架构
@@ -258,60 +262,59 @@ ___
 
 具体做法是先创建两个矩阵：词嵌入Embedding矩阵(注意：这个 Embedding矩阵其实就是网络Onehot层到Embedding层映射的网络参数矩阵，所以使用Word Embedding等价于把Onehot层到Embedding层的网络用预训练好的参数矩阵初始化了)、上下文Context矩阵，这两个矩阵在我们的词汇表中嵌入了每个单词，且两个矩阵都有这两个维度
 
-1.  第一个维度，词典大小即vocab\_size，比如可能10000，代表一万个词
-2.  第二个维度，每个词其嵌入的长度即embedding\_size，比如300是一个常见值（当然，我们在前文也看过50的例子，比如上文1.1节中最后关于单词“king”的词嵌入长度）
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/c4d818d40f353c792ab0f19e626ad88e.png)
-    
+1. 第一个维度，词典大小即vocab\_size，比如可能10000，代表一万个词
+
+2. 第二个维度，每个词其嵌入的长度即embedding\_size，比如300是一个常见值（当然，我们在前文也看过50的例子，比如上文1.1节中最后关于单词“king”的词嵌入长度）
+
+   ![](https://img-blog.csdnimg.cn/img_convert/c4d818d40f353c792ab0f19e626ad88e.png)
 
 训练的过程还是这个标准套路/方法，比如
 
-1.  第一步，先用随机值初始化这些矩阵。在每个训练步骤中，我们采取一个相邻的例子及其相关的非相邻例子  
-  
-    具体而言，针对这个例子：“Thou shalt not make a machine in the likeness of a human mind”，我们来看看我们的第一组（对于not 的前后各两个邻居单词分别是：Thou shalt 、make a）：
-    
-    ![](https://img-blog.csdnimg.cn/img_convert/53bf9c9d6f04d7d6e8abc60795baab3b.png)
-    
-    现在有四个单词：输入单词not，和上下文单词：**thou（实际邻居词）**，aaron和taco（负面例子）  
-    我们继续查找它们的嵌入  
-    对于输入词not，我们查看Embedding矩阵  
-    对于上下文单词，我们查看Context矩阵
-    
-    ![](https://img-blog.csdnimg.cn/img_convert/74368756e892a696fbad9171bc37f5c9.png)
-    
-2.  第二步，计算输入嵌入与每个上下文嵌入的点积
-  
-    还记得点积的定义否  
-    两个向量a = \[a1, a2,…, an\]和b = \[b1, b2,…, bn\]的点积定义为：![a\cdot b = a_{1}b_{1} + a_{2}b_{2} + \cdots + a_{n}b_{n}](https://latex.csdn.net/eq?a%5Ccdot%20b%20%3D%20a_%7B1%7Db_%7B1%7D%20&plus;%20a_%7B2%7Db_%7B2%7D%20&plus;%20%5Ccdots%20&plus;%20a_%7Bn%7Db_%7Bn%7D)
-    
-    而这个**点积的结果意味着**『**输入**』**和**『**上下文各个嵌入**』**的各自相似性程度，结果越大代表越相似**。
-    
-    ![](https://img-blog.csdnimg.cn/img_convert/e68a76a5b17995b45d6efdea27f29c51.png)
-    
-    为了将这些分数转化为看起来像概率的东西——比如正值且处于0到1之间，可以通过sigmoid这一逻辑函数转换下。
-    
-    ![](https://img-blog.csdnimg.cn/img_convert/31bfa57cc9c715958a059beb99a24887.png)
-    
-    可以看到taco得分最高，aaron最低，无论是sigmoid操作之前还是之后。
-    
-3.  第三步，既然未经训练的模型已做出预测，而且我们拥有真实目标标签来作对比，接下来便可以计算模型预测中的误差了，即让目标标签值减去sigmoid分数，得到所谓的损失函数
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/2a73281367bf7e0ef3782e14c719f488.png)
-    
-    **error = target - sigmoid\_scores**
-    
-4.  第四步，我们可以利用这个错误分数来调整not、thou、aaron和taco的嵌入，使下一次做出这一计算时，结果会更接近目标分数
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/dadb2abaf3a8cfb78fab6d4ad04d1b6f.png)
-    
-    训练步骤到此结束，我们从中得到了这一步所使用词语更好一些的嵌入（not，thou，aaron和taco）
-    
-5.  第五步，针对下一个相邻样本及其相关的非相邻样本再次执行相同的过程
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/3e46433783c7ebfad45bc9898c723515.png)
-    
-    当我们循环遍历整个数据集多次时，嵌入会继续得到改进。然后我们就可以停止训练过程，丢弃Context矩阵，并使用Embeddings矩阵作为下一项任务的已被训练好的嵌入
-    
+1. 第一步，先用随机值初始化这些矩阵。在每个训练步骤中，我们采取一个相邻的例子及其相关的非相邻例子  
+
+   具体而言，针对这个例子：“Thou shalt not make a machine in the likeness of a human mind”，我们来看看我们的第一组（对于not 的前后各两个邻居单词分别是：Thou shalt 、make a）：
+
+   ![](https://img-blog.csdnimg.cn/img_convert/53bf9c9d6f04d7d6e8abc60795baab3b.png)
+
+   现在有四个单词：输入单词not，和上下文单词：**thou（实际邻居词）**，aaron和taco（负面例子）  
+   我们继续查找它们的嵌入  
+   对于输入词not，我们查看Embedding矩阵  
+   对于上下文单词，我们查看Context矩阵
+
+   ![](https://img-blog.csdnimg.cn/img_convert/74368756e892a696fbad9171bc37f5c9.png)
+
+2. 第二步，计算输入嵌入与每个上下文嵌入的点积
+
+   还记得点积的定义否  
+   两个向量a = \[a1, a2,…, an\]和b = \[b1, b2,…, bn\]的点积定义为：$`a\cdot b = a_{1}b_{1} + a_{2}b_{2} + \cdots + a_{n}b_{n}`$
+
+   而这个**点积的结果意味着**『**输入**』**和**『**上下文各个嵌入**』**的各自相似性程度，结果越大代表越相似**。
+
+   ![](https://img-blog.csdnimg.cn/img_convert/e68a76a5b17995b45d6efdea27f29c51.png)
+
+   为了将这些分数转化为看起来像概率的东西——比如正值且处于0到1之间，可以通过sigmoid这一逻辑函数转换下。
+
+   ![](https://img-blog.csdnimg.cn/img_convert/31bfa57cc9c715958a059beb99a24887.png)
+
+   可以看到taco得分最高，aaron最低，无论是sigmoid操作之前还是之后。
+
+3. 第三步，既然未经训练的模型已做出预测，而且我们拥有真实目标标签来作对比，接下来便可以计算模型预测中的误差了，即让目标标签值减去sigmoid分数，得到所谓的损失函数
+
+   ![](https://img-blog.csdnimg.cn/img_convert/2a73281367bf7e0ef3782e14c719f488.png)
+
+   **error = target - sigmoid\_scores**
+
+4. 第四步，我们可以利用这个错误分数来调整not、thou、aaron和taco的嵌入，使下一次做出这一计算时，结果会更接近目标分数
+
+   ![](https://img-blog.csdnimg.cn/img_convert/dadb2abaf3a8cfb78fab6d4ad04d1b6f.png)
+
+   训练步骤到此结束，我们从中得到了这一步所使用词语更好一些的嵌入（not，thou，aaron和taco）
+
+5. 第五步，针对下一个相邻样本及其相关的非相邻样本再次执行相同的过程
+
+   ![](https://img-blog.csdnimg.cn/img_convert/3e46433783c7ebfad45bc9898c723515.png)
+
+   当我们循环遍历整个数据集多次时，嵌入会继续得到改进。然后我们就可以停止训练过程，丢弃Context矩阵，并使用Embeddings矩阵作为下一项任务的已被训练好的嵌入
 
 # 第二部分  从Seq2Seq到Seq2Seq with Attention
 
@@ -342,37 +345,37 @@ Seq2Seq（Sequence-to-sequence）正如字面意思：输入一个序列，输�
  在参考文献3里《[如何从RNN起步，一步一步通俗理解LSTM](https://blog.csdn.net/v_JULY_v/article/details/89894058 "如何从RNN起步，一步一步通俗理解LSTM")》，我们已经详细了解了RNN和LSTM，如果忘了，一定要复习下（这是继续理解下文的重中之重）
 
 > 为了建模序列问题，RNN引入了隐状态h（hidden state）的概念，**隐状态h可以对序列形的数据提取特征，接着再转换为输出**。
-> 
+>
 > 在学习RNN之前，首先要了解一下最基本的单层网络，它的结构如下图所示：
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/50aebf29216b34ee48f4432404748ea0.png)
-> 
->  输入是x，经过变换![Wx+b](https://latex.csdn.net/eq?Wx&plus;b)和激活函数f，得到输出y。相信大家对这个已经非常熟悉了。
-> 
+>
+>  输入是x，经过变换$`Wx+b`$和激活函数f，得到输出y。相信大家对这个已经非常熟悉了。
+>
 > 在实际应用中，我们还会遇到很多序列形的数据：
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/de565ecf43e0bda278ce99eebd875322.png)
-> 
+>
 >  如：
-> 
+>
 > 1.  自然语言处理问题。x1可以看做是第一个单词，x2可以看做是第二个单词，依次类推
 > 2.  语音处理。此时，x1、x2、x3……是每帧的声音信号
 > 3.  时间序列问题。例如每天的股票价格等等
-> 
+>
 > 而其中，序列形的数据就不太好用原始的神经网络处理了。
-> 
+>
 > 为了建模序列问题，RNN引入了隐状态h（hidden state）的概念，**隐状态h可以对序列形的数据提取特征，接着再转换为输出**。
-> 
-> 先从![h_{1}](https://private.codecogs.com/gif.latex?h_%7B1%7D)计算开始看：
-> 
+>
+> 先从$`h_{1}`$计算开始看：
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/f22cb1de22144ad6806b83acb3fb45a4.png)
-> 
+>
 > RNN可以被看做是上述同一神经网络的多次复制，每个神经网络模块会把消息传递给下一个：
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/eb598be0682804c2e3896176d00243b6.webp?x-oss-process=image/format,png)
-> 
+>
 > 当然，更多通常是其变种LSTM或者GRU
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/7df8e797439589e7305d3bb1d5e39be5.webp?x-oss-process=image/format,png)
 
 这样你就明白了吧，而只要是符合类似的框架，都可以统称为 Encoder-Decoder 模型。
@@ -397,53 +400,52 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 再举一个机器翻译的例子（本猫追老鼠例子的配图和核心阐述均来源于参考文献4），即用Google翻译这句话：Tom chase Jerry
 
-1.  在翻译“杰瑞”的时候，带有注意力机制的模型会体现出英文单词对于翻译当前中文单词不同的影响程度，比如给出类似这样一个概率分布值：（Tom,0.3）(Chase,0.2) (Jerry,0.5)，每个英文单词的概率代表了翻译当前单词“杰瑞”时，注意力分配模型分配给不同英文单词的注意力大小（类似我司七月在线开董事会，虽然每个人都有发言权，但对不同议题进行决策时，很明显对具体议题更擅长的人拥有更大的发言权，而这个发言权就像权重一样，不同的人对最终决策结果的产生有着不同大小的影响）
-  
-2.  目标句子中的每个单词都应该学会其对应的源语句子中单词的注意力分配概率信息。这意味着在生成每个单词![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)的时候，原先都是相同的中间语义表示C会被替换成根据当前生成单词而不断变化的![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)（注：这里就是Attention模型的关键，即由固定的中间语义表示C换成了根据当前输出单词来调整成加入注意力模型的变化的![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)）。
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/78df8537c4b8e681e472668a776f4260.png)
-    
-3.   生成目标句子单词的过程成了下面的形式：
-        
-    ![](https://img-blog.csdnimg.cn/img_convert/9f07d90b3a5e0d7c42f3f0b4aace80fd.png)
-    
-    而每个![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)可能对应着不同的源语句子单词的注意力分配概率分布，比如对于上面的英汉翻译来说，其对应的信息可能如下： 
-    
-    ![](https://img-blog.csdnimg.cn/img_convert/906501ef6328bf7f3ecc0f02cc57305d.png)
-    
-    其中，![f_{2}](https://latex.csdn.net/eq?f_%7B2%7D)函数代表Encoder对输入英文单词的某种变换函数，比如如果Encoder是用的RNN模型的话，这个![f_{2}](https://latex.csdn.net/eq?f_%7B2%7D)函数的结果往往是某个时刻输入![x_{i}](https://latex.csdn.net/eq?x_%7Bi%7D)后隐层节点的状态值；g代表Encoder根据单词的中间表示合成整个句子中间语义表示的变换函数，一般的做法中，g函数就是对构成元素加权求和，即下列公式： 
-    
-    ![](https://img-blog.csdnimg.cn/img_convert/c6a6cb296455b36bf3416d3e91a6e3c9.png)
-    
-    其中，![L_{x}](https://latex.csdn.net/eq?L_%7Bx%7D)代表输入句子Source的长度，![a_{ij}](https://latex.csdn.net/eq?a_%7Bij%7D)代表在Target输出第i个单词时Source输入句子中第j个单词的注意力分配系数，而![h_{j}](https://latex.csdn.net/eq?h_%7Bj%7D)则是Source输入句子中第j个单词的语义编码。
-    
-4.  假设![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)下标i就是上面例子所说的“ 汤姆” ，那么![L_{x}](https://latex.csdn.net/eq?L_%7Bx%7D)就是3，h1=f(“Tom”)、h2=f(“Chase”)、h3=f(“Jerry”)分别是输入句子每个单词的语义编码，对应的注意力模型权值则分别是0.6,0.2,0.2，所以g函数本质上就是个加权求和函数。如果形象表示的话，翻译中文单词“汤姆”的时候，数学公式对应的中间语义表示![C_{i}](https://latex.csdn.net/eq?C_%7Bi%7D)的形成过程类似下图。
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/3b516347112f14b5c0fde5aa215ba193.png)
-    
+1. 在翻译“杰瑞”的时候，带有注意力机制的模型会体现出英文单词对于翻译当前中文单词不同的影响程度，比如给出类似这样一个概率分布值：（Tom,0.3）(Chase,0.2) (Jerry,0.5)，每个英文单词的概率代表了翻译当前单词“杰瑞”时，注意力分配模型分配给不同英文单词的注意力大小（类似我司七月在线开董事会，虽然每个人都有发言权，但对不同议题进行决策时，很明显对具体议题更擅长的人拥有更大的发言权，而这个发言权就像权重一样，不同的人对最终决策结果的产生有着不同大小的影响）
+
+2. 目标句子中的每个单词都应该学会其对应的源语句子中单词的注意力分配概率信息。这意味着在生成每个单词$`y_{i}`$的时候，原先都是相同的中间语义表示C会被替换成根据当前生成单词而不断变化的$`C_{i}`$（注：这里就是Attention模型的关键，即由固定的中间语义表示C换成了根据当前输出单词来调整成加入注意力模型的变化的$`C_{i}`$）。
+
+   ![](https://img-blog.csdnimg.cn/img_convert/78df8537c4b8e681e472668a776f4260.png)
+
+3. 生成目标句子单词的过程成了下面的形式：
+
+   ![](https://img-blog.csdnimg.cn/img_convert/9f07d90b3a5e0d7c42f3f0b4aace80fd.png)
+
+   而每个$`C_{i}`$可能对应着不同的源语句子单词的注意力分配概率分布，比如对于上面的英汉翻译来说，其对应的信息可能如下： 
+
+   ![](https://img-blog.csdnimg.cn/img_convert/906501ef6328bf7f3ecc0f02cc57305d.png)
+
+   其中，$`f_{2}`$函数代表Encoder对输入英文单词的某种变换函数，比如如果Encoder是用的RNN模型的话，这个$`f_{2}`$函数的结果往往是某个时刻输入$`x_{i}`$后隐层节点的状态值；g代表Encoder根据单词的中间表示合成整个句子中间语义表示的变换函数，一般的做法中，g函数就是对构成元素加权求和，即下列公式： 
+
+   ![](https://img-blog.csdnimg.cn/img_convert/c6a6cb296455b36bf3416d3e91a6e3c9.png)
+
+   其中，$`L_{x}`$代表输入句子Source的长度，$`a_{ij}`$代表在Target输出第i个单词时Source输入句子中第j个单词的注意力分配系数，而$`h_{j}`$则是Source输入句子中第j个单词的语义编码。
+
+4. 假设$`C_{i}`$下标i就是上面例子所说的“ 汤姆” ，那么$`L_{x}`$就是3，h1=f(“Tom”)、h2=f(“Chase”)、h3=f(“Jerry”)分别是输入句子每个单词的语义编码，对应的注意力模型权值则分别是0.6,0.2,0.2，所以g函数本质上就是个加权求和函数。如果形象表示的话，翻译中文单词“汤姆”的时候，数学公式对应的中间语义表示$`C_{i}`$的形成过程类似下图。
+
+   ![](https://img-blog.csdnimg.cn/img_convert/3b516347112f14b5c0fde5aa215ba193.png)
 
 这里有一个问题：生成目标句子某个单词，比如“汤姆”的时候，如何知道Attention模型所需要的输入句子单词注意力分配概率分布值呢？就是说“汤姆”对应的输入句子Source中各个单词的概率分布：(Tom,0.6) (Chase,0.2) (Jerry,0.2) 是如何得到的呢？为做说明，特引用参考文献4对应的内容，如下
 
 > 为了便于说明，我们假设对非Attention模型的Encoder-Decoder框架进行细化，Encoder采用RNN模型，Decoder也采用RNN模型，这是比较常见的一种模型配置
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/309f5158c52f4362ccd9b93a673093da.png)
-> 
+>
 > 那么用下图便可以较为便捷地说明注意力分配概率分布值的通用计算过程。
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/1d91a686c492378519bff3a12d384db5.png)
-> 
+>
 > 对于采用RNN的Decoder来说
-> 
-> 1.  在时刻i，如果要生成![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)单词，我们是可以知道Target在生成![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)之前的时刻i-1时，隐层节点在i-1时刻的输出值![H_{i-1}](https://latex.csdn.net/eq?H_%7Bi-1%7D)的（这是RNN结构的特性，如果忘了RNN结构特性请回顾参考文献3）
-> 2.  而我们的目的是要计算生成![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)时输入句子中的单词“Tom”、“Chase”、“Jerry”对![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)来说的注意力分配概率分布，那么可以用Target输出句子i-1时刻的隐层节点状态![H_{i-1}](https://latex.csdn.net/eq?H_%7Bi-1%7D)去一一和输入句子Source中每个单词对应的RNN隐层节点状态![h_{j}](https://latex.csdn.net/eq?h_%7Bj%7D)进行对比，即通过函数![F(h_{j},H_{i-1})](https://latex.csdn.net/eq?F%28h_%7Bj%7D%2CH_%7Bi-1%7D%29)来获得目标单词![y_{i}](https://latex.csdn.net/eq?y_%7Bi%7D)和每个输入单词对应的对齐可能性，**这个F函数在不同论文里可能会采取不同的方法**，然后函数F的输出经过Softmax进行归一化就得到了符合概率分布取值区间的注意力分配概率分布数值
+>
+> 1.  在时刻i，如果要生成$`y_{i}`$单词，我们是可以知道Target在生成$`y_{i}`$之前的时刻i-1时，隐层节点在i-1时刻的输出值$`H_{i-1}`$的（这是RNN结构的特性，如果忘了RNN结构特性请回顾参考文献3）
+> 2.  而我们的目的是要计算生成$`y_{i}`$时输入句子中的单词“Tom”、“Chase”、“Jerry”对$`y_{i}`$来说的注意力分配概率分布，那么可以用Target输出句子i-1时刻的隐层节点状态$`H_{i-1}`$去一一和输入句子Source中每个单词对应的RNN隐层节点状态$`h_{j}`$进行对比，即通过函数$`F(h_{j},H_{i-1})`$来获得目标单词$`y_{i}`$和每个输入单词对应的对齐可能性，**这个F函数在不同论文里可能会采取不同的方法**，然后函数F的输出经过Softmax进行归一化就得到了符合概率分布取值区间的注意力分配概率分布数值
 
 对上面这段，还是有必要再好好解释一下
 
--   如我司杜助教所言：“ 这里举的例子是由 Tom chase Jerrry 得到 汤姆追逐杰瑞，现在我们假设要预测杰瑞（已经预测出来汤姆追逐），那么这个时候，i 就表示的是杰瑞这个时刻，i-1时刻的hidden就包含了**汤姆追逐**的信息，就是想计算i-1时刻的hidden和Tom、chase、Jerry的各自不同的Attention数值，进而更好地预测杰瑞这个词 ”
--   至于注意力分配概率的分布数值，有多种不同的计算方法，具体参见此文：[Attention? Attention!](https://lilianweng.github.io/posts/2018-06-24-attention/ "Attention? Attention!")，或者参看参考文献14（33min至37min，以及50min都有讲）
-  
-    ![](https://img-blog.csdnimg.cn/445cf49afb604fe68a75cdf085cfc2f1.png)
-    
+- 如我司杜助教所言：“ 这里举的例子是由 Tom chase Jerrry 得到 汤姆追逐杰瑞，现在我们假设要预测杰瑞（已经预测出来汤姆追逐），那么这个时候，i 就表示的是杰瑞这个时刻，i-1时刻的hidden就包含了**汤姆追逐**的信息，就是想计算i-1时刻的hidden和Tom、chase、Jerry的各自不同的Attention数值，进而更好地预测杰瑞这个词 ”
+
+- 至于注意力分配概率的分布数值，有多种不同的计算方法，具体参见此文：[Attention? Attention!](https://lilianweng.github.io/posts/2018-06-24-attention/ "Attention? Attention!")，或者参看参考文献14（33min至37min，以及50min都有讲）
+
+  ![](https://img-blog.csdnimg.cn/445cf49afb604fe68a75cdf085cfc2f1.png)
 
 ### 2.2.3 Attention的算法流程总结：通过计算相似性得出权重最后加权求和
 
@@ -469,13 +471,13 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 1. 第一步：代表漫威漫画的query 和 代表某本书的key 进行相似度计算（常见的方法包括：求两者的向量点积、求两者的向量Cosine相似性等），得到权值
 
-2.  第二步：将权值进行归一化（将原始计算分值整理成所有元素权重之和为1的概率分布，或者说通过SoftMax的内在机制更加突出重要元素的权重），得到直接可用的权重  
-  
-    ![](https://img-blog.csdn.net/20171210215032165)
-    
-3.  第三步：将权重和 value 进行加权求和  
-  
-    ![](https://img-blog.csdn.net/20171210215055844)
+2. 第二步：将权值进行归一化（将原始计算分值整理成所有元素权重之和为1的概率分布，或者说通过SoftMax的内在机制更加突出重要元素的权重），得到直接可用的权重  
+
+   ![](https://img-blog.csdn.net/20171210215032165)
+
+3. 第三步：将权重和 value 进行加权求和  
+
+   ![](https://img-blog.csdn.net/20171210215055844)
 
 值得一提的是，Attention 并不一定要在 Encoder-Decoder 框架下使用的，他是可以脱离 Encoder-Decoder 框架的。
 
@@ -484,15 +486,16 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 了解了Attention的本质思想，理解所谓的Self-Attention就容易了，具体下文会详细阐述，这里先简单提一嘴：
 
 > 在一般任务的Encoder-Decoder框架中，输入Source和输出Target内容是不一样的，比如对于英-中机器翻译来说，Source是英文句子，Target是对应的翻译出的中文句子，Attention机制发生在Target的元素Query和Source中的所有元素之间。
-> 
+>
 > 而Self Attention顾名思义，指的不是Target和Source之间的Attention机制，而是Source内部元素之间或者Target内部元素之间发生的Attention机制，也可以理解为Target=Source这种特殊情况下的注意力计算机制。其具体计算过程是一样的，只是计算对象发生了变化而已。
 
 ##   
+
 # 第三部分 通俗理解Transformer：通过自注意力机制开启大规模预训练时代
 
 自从2017年此文《[Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf "Attention is All You Need")》提出来Transformer后，便开启了大规模预训练的新时代，也在历史的长河中一举催生出了BERT这样的大一统模型。
 
-> ![](https://img-blog.csdnimg.cn/0a9151721dee403cbe55614f36f6fe02.png)
+> <div><img src="https://img-blog.csdnimg.cn/0a9151721dee403cbe55614f36f6fe02.png"/></div>
 
 有兴趣的，可以回顾下。比如2018年3月份华盛顿大学提出ELMO、2018年6月份OpenAI提出GPT、2018年10月份Google提出BERT、2019年6月份CMU+google brain提出XLNet等等。
 
@@ -582,15 +585,18 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 通过向量方式计算自注意力的第一步，就是从每个编码器的输入向量(即每个单词的词向量)生成三个向量：查询向量query-vec、键向量key-vec、值向量value-vec
 
-至于它们的生成方法是把输入的向量分别乘以三个不同的权重矩阵![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)、![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)、![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)，得到Q、K、V，而这些权重矩阵是在模型训练阶段中训练出来的
+至于它们的生成方法是把输入的向量分别乘以三个不同的权重矩阵$`W^{Q}`$、$`W^{K}`$、$`W^{V}`$，得到Q、K、V，而这些权重矩阵是在模型训练阶段中训练出来的
 
 对于上述这两段可能会有同学对一些细节有疑问，而有的文章可能都会觉得不言而喻，因为本文面向初学者，所以我把相关细节一并解释下：
 
 1.  首先，查询向量、键向量、值向量这三个向量的维度在论文中设置的是64，在维度上比词嵌入向量更低，因为词嵌入和编码器的输入/输出向量的维度是512，但值得注意的是也不是必须比编码器输入输出的维数小，这样做主要是为了让后续多头注意力的计算更稳定  
     （在下文你会看到，transformer通过多头注意力机制multi headed attention，对每个512维的输入向量都设置了8个头，不同的头关注每个输入向量不同的部分，而你发现没有：512/8 = 64，且再多说一句，也可以设置为2个头，不一定非得设置为8个头）
-2.  其次，对于权重矩阵![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)/![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)/![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)如何训练出来的，还是标准老套路：先随机初始化，然后在损失函数中表示出来，最后通过反向传播不断优化学习得出。至于什么是反向传播，请参见[参考文献17](https://www.julyedu.com/questions/interview-detail?kp_id=26&cate=%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0&quesId=2921 "参考文献17")）
+2.  其次，对于权重矩阵$`W^{Q}`$/$`W^{K}`$/$`W^{V}`$如何训练出来的，还是标准老套路：先随机初始化，然后在损失函数中表示出来，最后通过反向传播不断优化学习得出。至于什么是反向传播，请参见[参考文献17](https://www.julyedu.com/questions/interview-detail?kp_id=26&cate=%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0&quesId=2921 "参考文献17")）
 
-有了权重矩阵后，对于单词![X_{1}](https://latex.csdn.net/eq?X_%7B1%7D)、![X_{2}](https://latex.csdn.net/eq?X_%7B2%7D)分别而言（假定X1是Thinking，X2是Machines）：
+有了权重矩阵后，对于单词$`X_{1}`$、$`X_{2}`$分别而言（假定X1是Thinking，X2是Machines）：
+
+- $`X_{1}`$与$`W^{Q}`$权重矩阵相乘得到与这个单词相关的查询向量$`q_{1}`$、$`X_{1}`$与$`W^{K}`$权重矩阵相乘得到与这个单词相关的键向量$`k_{1}`$、$`X_{1}`$与$`W^{V}`$权重矩阵相乘得到与这个单词相关的值向量$`v_{1}`$
+- 对于单词$`X_{2}`$而言，依上类推：$`X_{2}`$分别与$`W^{Q}`$、$`W^{K}`$、$`W^{V}`$相乘得到该单词的查询向量$`q_{2}`$、键向量$`k_{2}`$、值向量$`v_{2}`$
 
 ![](https://img-blog.csdnimg.cn/img_convert/74843c907a1ea3ff862ff898dc22fce5.jpeg)
 
@@ -635,16 +641,15 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 接下来，针对每个单词都进行上述六个步骤的自注意力得分计算，相当于
 
-1.  先是“Thinking”对应的query(q1)与各个不同的key(k1、k2)计算相似度，然后除以8继而softmax，最后softmax值乘以值向量v1并加权求和
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/ff0f9bff8d7626e2e40a34e7d77deb8e.webp?x-oss-process=image/format,png)
-    
-2.  再是“Machines”对应的query(q2)与各个不同的key(k1、k2)计算相似度，然后也除以8继而softmax，最后softmax值乘以值向量v2并加权求和
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/023f00c574399d072db409c581052dea.webp?x-oss-process=image/format,png)
-    
+1. 先是“Thinking”对应的query(q1)与各个不同的key(k1、k2)计算相似度，然后除以8继而softmax，最后softmax值乘以值向量v1并加权求和
 
-最终每个词的输出向量![z_i](https://latex.csdn.net/eq?z_i)都包含了其他词的信息，每个词都不再是孤立的了，而且词与词的相关程度可以通过softmax输出的权重进行分析
+   ![](https://img-blog.csdnimg.cn/img_convert/ff0f9bff8d7626e2e40a34e7d77deb8e.webp?x-oss-process=image/format,png)
+
+2. 再是“Machines”对应的query(q2)与各个不同的key(k1、k2)计算相似度，然后也除以8继而softmax，最后softmax值乘以值向量v2并加权求和
+
+   ![](https://img-blog.csdnimg.cn/img_convert/023f00c574399d072db409c581052dea.webp?x-oss-process=image/format,png)
+
+最终每个词的输出向量$`z_i`$都包含了其他词的信息，每个词都不再是孤立的了，而且词与词的相关程度可以通过softmax输出的权重进行分析
 
 ![](https://img-blog.csdnimg.cn/05b64b744bc74d828e0394a95ce4e487.png)
 
@@ -653,7 +658,7 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 
 **3.1.5 通过矩阵运算实现自注意力机制**
 
-第一步是计算查询矩阵、键矩阵和值矩阵。为此，我们将输入词向量合并成输入矩阵![X](https://latex.csdn.net/eq?X)（矩阵的每一行代表输入句子中的一个单词，所以整个矩阵就代表整个句子），将其乘以我们训练的权重矩阵(![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)/![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)/![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D))
+第一步是计算查询矩阵、键矩阵和值矩阵。为此，我们将输入词向量合并成输入矩阵X（矩阵的每一行代表输入句子中的一个单词，所以整个矩阵就代表整个句子），将其乘以我们训练的权重矩阵($`W^{Q}`$/$`W^{K}`$/$`W^{V}`$)
 
 ![](https://img-blog.csdnimg.cn/img_convert/1bed15c3749c8760dc9975361148523a.png)
 
@@ -677,7 +682,7 @@ Attention 模型的特点是 Eecoder 不再将整个输入序列编码为固�
 > 叫TniL的答道：可以类比CNN中同时使用多个滤波器的作用，直观上讲，多头的注意力有助于网络捕捉到更丰富的特征/信息  
 > 且论文中是这么说的：Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions.  
 > 关于different representation subspaces，举一个不一定妥帖的例子：当你浏览网页的时候，你可能在颜色方面更加关注深色的文字，而在字体方面会去注意大的、粗体的文字。这里的颜色和字体就是两个不同的表示子空间。同时关注颜色和字体，可以有效定位到网页中强调的内容。使用多头注意力，也就是综合利用各方面的信息/特征（毕竟，不同的角度有着不同的关注点）
-> 
+>
 > 叫LooperXX的则答道：在Transformer中使用的多头注意力出现前，基于各种层次的各种fancy的注意力计算方式，层出不穷。而Transformer的多头注意力借鉴了CNN中同一卷积层内使用多个卷积核的思想，原文中使用了 8 个 scaled dot-product attention ，在同一multi-head attention 层中，输入均为 KQV，同时进行注意力的计算，彼此之前参数不共享，最终将结果拼接起来，这样可以允许模型在不同的表示子空间里学习到相关的信息，在此之前的 A Structured Self-attentive Sentence Embedding 也有着类似的思想  
 > 简而言之，就是希望**每个注意力头，只关注最终输出序列中一个子空间，互相独立**，其核心思想在于，抽取到更加丰富的特征信息
 
@@ -687,15 +692,15 @@ OK，接下来，我们将看到对于“多头”注意机制，我们有多个
 
 ![](https://img-blog.csdnimg.cn/img_convert/a6ab1515a24fc63691636372d2aea5c4.jpeg)
 
-在“多头”注意机制下，我们为每个头保持独立的查询/键/值权重矩阵，从而产生不同的查询/键/值矩阵。和之前一样，我们拿![X](https://latex.csdn.net/eq?X)乘以![W^{Q}](https://latex.csdn.net/eq?W%5E%7BQ%7D)/![W^{K}](https://latex.csdn.net/eq?W%5E%7BK%7D)/![W^{V}](https://latex.csdn.net/eq?W%5E%7BV%7D)矩阵来产生查询/键/值矩阵。
+在“多头”注意机制下，我们为每个头保持独立的查询/键/值权重矩阵，从而产生不同的查询/键/值矩阵。和之前一样，我们拿X乘以$`W^{Q}`$/$`W^{K}`$/$`W^{V}`$矩阵来产生查询/键/值矩阵。
 
 如果我们做与上述相同的自注意力计算，只需8次不同的权重矩阵运算，我们就会得到8个不同的Z矩阵。
 
 ![](https://img-blog.csdnimg.cn/img_convert/fdbd007f0ebeef9f0a4402256e9184c1.png)
 
-这给我们带来了一点挑战。前馈层没法一下子接收8个矩阵，它需要一个单一的矩阵(最终这个单一**矩阵类似输入矩阵**![X](https://latex.csdn.net/eq?X)**那样，矩阵中每个的行向量对应一个单词，比如矩阵的第一行对应单词Thinking、矩阵的第二行对应单词Machines**)。 
+这给我们带来了一点挑战。前馈层没法一下子接收8个矩阵，它需要一个单一的矩阵(最终这个单一**矩阵类似输入矩阵**X**那样，矩阵中每个的行向量对应一个单词，比如矩阵的第一行对应单词Thinking、矩阵的第二行对应单词Machines**)。 
 
-所以我们需要一种方法把这8个矩阵合并成一个矩阵。那该怎么做？其实可以直接把这些矩阵拼接在一起，然后乘以一个附加的权重矩阵![W^{o}](https://latex.csdn.net/eq?W%5E%7BO%7D)。
+所以我们需要一种方法把这8个矩阵合并成一个矩阵。那该怎么做？其实可以直接把这些矩阵拼接在一起，然后乘以一个附加的权重矩阵$`W^{o}`$。
 
 ![](https://img-blog.csdnimg.cn/img_convert/95d07b21ade2fd02d7e0fdb10cc2b127.jpeg)
 
@@ -719,27 +724,26 @@ OK，接下来，我们将看到对于“多头”注意机制，我们有多个
 首先，CNN提取的是局部特征，但是对于文本数据，忽略了长距离的依赖，比如来自[这里](https://www.zhihu.com/question/580810624/answer/2979260071 "这里")的这个例子
 
 > 假设有如下这句话：小明在星期天要去露营，他准备叫上小红
-> 
+>
 > 在屏幕前的你，你会很快看出来后半句中的「他」指的就是「小明」，因为你可以一眼扫过去 看到差不多整个句子，且一眼看出这些词之间的关联，但对于计算机来说，可没那么容易，毕竟“小明”和“他”之间之间相距8个字  
 > 具体而言，对于CNN会怎么处理呢？
-> 
-> 1.  一般会从最左侧开始，通过「同时扫描三个词的滑动窗口」从左到右扫描整个句子
->   
->     ![](https://img-blog.csdnimg.cn/15a9e270ce2848b483324eac1e1ac7b9.png)
->     
-> 2.  且每次往右移动一格
->   
->     ![](https://img-blog.csdnimg.cn/22d2ddf0859248e4b87f30a0675e57f8.png)
->     
-> 3.  重复这个过程，对整个文本进行处理，便得到一个「卷积核」计算出的所有特征，如下图所示，此时“小明”两个字只共同参与了特征A1的计算，而“他”字则参与了特征A9、A10和A11的计算，其中A9距离A1最近(因为A1中含有“小明”的信息，而A9中含有“他”的信息)  
->     但在此时卷积操作本身并没有同时作用于“小明”和“他”这两个词，所以它无法建立它们之间的任何关系(因为模型的卷积操作都没有同时看到它们)
->     
->     ![](https://img-blog.csdnimg.cn/b49d1598a6664e20a918f525d09e2693.png)
->     
-> 4.  怎么办呢？好在不管怎么着，特征A1和特征A9之间的距离相较于“小明”和“他”的距离变近了。所以我们可以继续在特征A上再堆叠一层卷积B 然后计算，然后再堆叠卷积C 再计算，直到卷积操作比如E能直接获取到“小明”和“他”的信息
->   
->     ![](https://img-blog.csdnimg.cn/b2f9a9dd6628485288965dcf05f36101.png)
->     
+>
+> 1. 一般会从最左侧开始，通过「同时扫描三个词的滑动窗口」从左到右扫描整个句子
+>
+>    ![](https://img-blog.csdnimg.cn/15a9e270ce2848b483324eac1e1ac7b9.png)
+>
+> 2. 且每次往右移动一格
+>
+>    ![](https://img-blog.csdnimg.cn/22d2ddf0859248e4b87f30a0675e57f8.png)
+>
+> 3. 重复这个过程，对整个文本进行处理，便得到一个「卷积核」计算出的所有特征，如下图所示，此时“小明”两个字只共同参与了特征A1的计算，而“他”字则参与了特征A9、A10和A11的计算，其中A9距离A1最近(因为A1中含有“小明”的信息，而A9中含有“他”的信息)  
+>    但在此时卷积操作本身并没有同时作用于“小明”和“他”这两个词，所以它无法建立它们之间的任何关系(因为模型的卷积操作都没有同时看到它们)
+>
+>    ![](https://img-blog.csdnimg.cn/b49d1598a6664e20a918f525d09e2693.png)
+>
+> 4. 怎么办呢？好在不管怎么着，特征A1和特征A9之间的距离相较于“小明”和“他”的距离变近了。所以我们可以继续在特征A上再堆叠一层卷积B 然后计算，然后再堆叠卷积C 再计算，直到卷积操作比如E能直接获取到“小明”和“他”的信息
+>
+>    ![](https://img-blog.csdnimg.cn/b2f9a9dd6628485288965dcf05f36101.png)
 
 就这样，通过更多的卷积操作，把卷积网络堆叠的更深，以此来让它有机会捕捉“长距离依赖”。换言之，卷积网络主要依靠深度来捕捉长距离依赖。但这个过程太间接了，因为信息在网络中实际传播了太多层。究竟哪些信息被保留，哪些被丢弃了，弄不清楚。所以从实践经验来看，卷积网络捕捉长依赖的能力非常弱。这也是为什么在大多数需要长依赖关系建模的场景中，CNN用的并不多的原因
 
@@ -757,7 +761,7 @@ OK，接下来，我们将看到对于“多头”注意机制，我们有多个
 
 即将每个位置编号，从而每个编号对应一个向量，最终通过**结合位置向量和词向量，作为输入embedding**，就给每个词都引入了一定的位置信息，这样Attention就可以分辨出不同位置的词了：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/19ac49ddfe8a4c7096234c306eeb4111.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBATG9saXRhQW5u,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center)
+![](https://img-blog.csdnimg.cn/19ac49ddfe8a4c7096234c306eeb4111.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBATG9saXRhQW5u,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center)
 
  关于『使用位置编码表示序列的位置』的细节请参看此文的1.1节：[类ChatGPT代码级解读：如何从零起步实现Transformer、llama/ChatGLM](https://blog.csdn.net/v_JULY_v/article/details/130090649 "类ChatGPT代码级解读：如何从零起步实现Transformer、llama/ChatGLM")
 
@@ -783,13 +787,15 @@ OK，接下来，我们将看到对于“多头”注意机制，我们有多个
 
 值得一提的是，解码器中的自注意力层和编码器中的不太一样：
 
--   Encoder中的Q、K、V全部来自于上一层单元的输出
--   而Decoder只有Q来自于上一个Decoder单元的输出，K与V都来自于Encoder最后一层的输出。也就是说，Decoder是要通过当前状态与Encoder的输出算出权重后(计算query与各个key的相似度)，最后将Encoder的编码加权得到下一层的状态
-  
-    比如当我们要把“Hello Word”翻译为“你好，世界”时 
-    Decoder会计算“你好”这个query分别与“Hello”、“Word”这两个key的相似度  
-    很明显，“你好”与“Hello”更相似，从而给“Hello”更大的权重，从而把“你好”对应到“Hello”，达到的效果就是“Hello”翻译为“你好”
--   且在**解码器中，自注意力层只允许关注已输出位置的信息**，实现方法是在自注意力层的softmax之前进行mask，将未输出位置的权重设置为一个非常大的负数(进一步softmax之后基本变为0，相当于直接屏蔽了未输出位置的信息)
+- Encoder中的Q、K、V全部来自于上一层单元的输出
+
+- 而Decoder只有Q来自于上一个Decoder单元的输出，K与V都来自于Encoder最后一层的输出。也就是说，Decoder是要通过当前状态与Encoder的输出算出权重后(计算query与各个key的相似度)，最后将Encoder的编码加权得到下一层的状态
+
+  比如当我们要把“Hello Word”翻译为“你好，世界”时 
+  Decoder会计算“你好”这个query分别与“Hello”、“Word”这两个key的相似度  
+  很明显，“你好”与“Hello”更相似，从而给“Hello”更大的权重，从而把“你好”对应到“Hello”，达到的效果就是“Hello”翻译为“你好”
+
+- 且在**解码器中，自注意力层只允许关注已输出位置的信息**，实现方法是在自注意力层的softmax之前进行mask，将未输出位置的权重设置为一个非常大的负数(进一步softmax之后基本变为0，相当于直接屏蔽了未输出位置的信息)
 
 ### 3.2.2 最后的线性层和softmax层
 
@@ -851,16 +857,16 @@ ELMO是“Embedding from Language Models”的简称，提出ELMO的论文题目
 
 > 好家伙，一般的文章可能面对这个问题就是一笔带过，但我July不行啊，咱得解释清楚啥叫“ELMO虽然采用的双向结构，但两个方向是彼此独立训练的”，啥叫既然是双向的，又何来什么独立，然后避免see itself的问题呢？  
 > 好问题！虽然ELMO用双向LSTM来做encoding，但是这**两个方向的LSTM其实是分开训练的**（看到上图中那两个虚线框框没，**分开看左边的双层LSTM和右边的双层LSTM，一个从左向右预测，一个从右向左预测，但在左边和右边的内部结构里，其本质不还是单向么，所以其实就是个伪双向**，^\_^），**只是在最后在loss层做了个简单相加**
-> 
+>
 > 换言之，两个关键点
-> 
+>
 > 1.  对于每个方向上的单词来说，因为两个方向彼此独立训练，故在一个方向被encoding的时候始终是看不到它另一侧的单词的，从而避免了see itself的问题
 > 2.  而再考虑到句子中有的单词的语义会同时依赖于它左右两侧的某些词，仅仅从单方向做encoding是不能描述清楚的，所以再来一个反向encoding，故称双向
-> 
+>
 > 看似完美！“伪双向”既解决了see itself的问题，又充分用上了上下文的语义
-> 
+>
 > ___
-> 
+>
 > 然，BERT的作者指出这种**两个方向彼此独立训练即伪双向的情况下，即便双层的双向编码**也可能没有发挥最好的效果，而且我们可能不仅需要真正的双向编码，还应该要加深网络的层数，但暂且不管加不加深，真正的双向编码网络还是会不得不面对这个老问题：导致模型最终可以间接地“窥探”到需要预测的词，即还是那个see itself的问题。此点，下文细谈
 
 ELMO这个网络结构其实在NLP中是很常用的。使用这个网络结构利用大量语料做语言模型任务就能预先训练好这个网络，如果**训练好这个网络后，再输入一个新句子，句子中每个单词都能得到对应的三个Embedding：**
@@ -928,7 +934,7 @@ ___
 4.  在目标数据集(如椅子数据集)上训练目标模型，我们将从头训练输出层，而其余层的参数都是基于源模型的参数微调得到的
 
 > 最终，Fine-tuning意义在于以下三点
-> 
+>
 > 1.  站在巨人的肩膀上：前人花很大精力训练出来的模型在大概率上会比你自己从零开始搭的模型要强悍，没有必要重复造轮子
 > 2.  训练成本可以很低：如果采用导出特征向量的方法进行迁移学习，后期的训练成本非常低，用CPU都完全无压力，没有深度学习机器也可以做
 > 3.  适用于小数据集：对于数据集本身很小（几千张图片）的情况，从头开始训练具有几千万参数的大型神经网络是不现实的，因为越大的模型对数据量的要求越大，过拟合无法避免。这时候如果还想用上大型神经网络的超强特征提取能力，只能靠迁移学习
@@ -952,22 +958,22 @@ GPT也采用两阶段过程，第一个阶段是利用语言模型进行预训�
 ELMO在做语言模型预训练的时候，预测单词可以同时使用上文和下文，用的双向LSTM结构，而GPT则只采用单词的上文来进行单词预测，而抛开了下文。说人话，就是让你根据提示造句，从左到右，是单向的
 
 > 什么是单向Transformer？在Transformer的文章中，提到了Encoder与Decoder使用的Transformer Block是不同的。怎么个不同？通过本文第三部分对Transformer的介绍可得知：
-> 
+>
 > -   Encoder因为要编码整个句子，所以每个词都需要考虑上下文的关系。所以每个词在计算的过程中都是可以看到句子中所有的词的；
 > -   但是Decoder与Seq2Seq中的解码器类似，每个词都只能看到前面词的状态，所以是一个单向的Self-Attention结构
-> 
+>
 > 换言之，在解码Decoder Block中，使用了Masked Self-Attention（所谓Masked，即遮蔽的意思），即句子中的每个词，都只能对包括自己在内的前面所有词进行Attention，这就是单向Transformer。
-> 
+>
 > 而GPT使用的Transformer结构就是将Encoder中的Self-Attention替换成了Masked Self-Attention，从而每个位置的词看不到后面的词
-> 
+>
 > ![](https://img-blog.csdnimg.cn/img_convert/655085e6ce07069ae50868b0b18bdd42.png)
-> 
+>
 > ___
-> 
+>
 > July写博客嘛，就喜欢抠细节 不抠清楚不罢休，故帮本文的读者发挥下想象。
-> 
+>
 > 比如有人可能立马就疑问了，既然我们已经确定通过上下文预测单词可以更准确，为何GPT还抛弃下文只通过上文预测单词呢？
-> 
+>
 > -   首先，GPT把特征提取器从LSTM换成了更强的transformer，此举已经很是创新了（GPT之后大部分模型都开始用Transformer做特征提取器）
 > -   而此时如果用Transformer的结构提取上下文去做单词预测，那就势必用上Transformer双向结构，而Transformer不像ELMO的双向结构各个方向独立训练而不会see itself，但双向Transformer会出现see itself 啊！  
 >     这可万万不行，因为咱们原本就要训练模型的预测能力，而如果你通过双向非独立的结构都能看到中间要被预测的单词、看到答案了（比如当你用前面的词逐个的预测下一个词的时候，结果你从另一个方向看到每个词，你品、细品，举个例子，预测a **b c d** f，一开始从左至右逐个预测第二位置 第三位置 第四位置的词：b c d，然后你从右往左预测时，能逐个看到：第四位置 第三位置 第二位置的词：d c b），还做个啥子预测？
@@ -1006,11 +1012,11 @@ ELMO在做语言模型预训练的时候，预测单词可以同时使用上文�
 
 进一步，BERT采用和GPT完全相同的两阶段模型
 
-1.  首先是预训练(通过不同的预训练任务在未标记的数据上进行模型训练)，其次是使用Fine-Tuning模式解决下游任务
-2.  和GPT的最主要不同在于在预训练阶段采用了类似ELMO的双向语言模型，当然另外一点是语言模型的数据规模要比GPT大
-  
-    ![](https://img-blog.csdnimg.cn/img_convert/8ce7989d10e8a73e30de1b83c79c7c41.png)
-    
+1. 首先是预训练(通过不同的预训练任务在未标记的数据上进行模型训练)，其次是使用Fine-Tuning模式解决下游任务
+
+2. 和GPT的最主要不同在于在预训练阶段采用了类似ELMO的双向语言模型，当然另外一点是语言模型的数据规模要比GPT大
+
+   ![](https://img-blog.csdnimg.cn/img_convert/8ce7989d10e8a73e30de1b83c79c7c41.png)
 
 总之，预训练之后，针对下游每个不同的任务都会有一个任务模型，只是这些任务模型一开始全都初始化为预训练好的BERT模型，然后根据下游任务的特点针对性微调(The same pre-trained model parameters are used to initialize models for different down-stream tasks. During fine-tuning, all parameters are fine-tune)
 
@@ -1107,24 +1113,25 @@ ELMO在做语言模型预训练的时候，预测单词可以同时使用上文�
 
 BERT的横空出世基本也是NLP模型不断发展、演变的结果，如参考文献7所总结的：
 
-1.  早期的NLP模型基于规则解决问题，比如专家系统，这种方式扩展性差，因为无法通过人来书写所有规则。
-2.  之后提出了基于统计学的自然语言处理，早期主要是基于浅层机器学习解决NLP问题。例如，通过马尔科夫模型获得语言模型，通过条件随机场CRF进行词性标注。如果你去看StandFord的NLP工具，里面处理问题的早期方法，都是这类方法。
-3.  当深度学习在图像识别领域得到快速发展时，人们也开始将深度学习应用于NLP领域。
-  
-    首先是**Word Embedding**。它可以看成是对『单词特征』提取得到的产物，它也是深度学习的副产物。随后，人们又提出了**Word2Vec**，GloVe等类似预训练的词向量，作为对单词的特征抽象，输入深度学习模型。
-    
-    其次是**RNN**。RNN使得神经网络具有时序的特性，这种特性非常适合解决NLP这种词与词之间有顺序的问题。但是，深度学习存在梯度消失问题，这在RNN中尤其明显，于是人们提出了**LSTM/GRU**等技术，以解决这种梯度消失问题。在2018年以前，LSTM和GRU在NLP技术中占据了绝对统治地位。
-    
-    当时RNN有个致命的问题，就是训练慢，无法并行处理，这限制了其发展。于是人们想到了是否可以用CNN替代RNN，以解决这个问题。于是人们提出了用**1D CNN**来解决NLP问题。但是这种方式也有个明显问题，就是丢掉了RNN的时序优势。
-    
-    除了时序问题，我们还不得不提另外一个关键问题，即**注意力Attention**。Attention最早用于图像识别领域，然后再被用于NLP领域。
-    
-    有了Attention技术，我们急需新技术既可以保证并行处理，又可以解决时序问题。于是**Transformer**腾空出世。它也是BERT的基础之一。
-    
-    除此之外，**ELMO**提出的预训练双向语言模型以及**GPT**提出的单向Tranformer也是最新双向Transformer发展的基础，在《Attention Is All You Need》一文，Transformer上升到另外一个高度。
-    
-    **BERT**正是综合以上这些优势提出的方法（预训练 + Fine-Tuning + 双向Transformer，再加上其两个创新点：Masked语言模型、Next Sentence Prediction），可以解决NLP中大部分问题。
-    
+1. 早期的NLP模型基于规则解决问题，比如专家系统，这种方式扩展性差，因为无法通过人来书写所有规则。
+
+2. 之后提出了基于统计学的自然语言处理，早期主要是基于浅层机器学习解决NLP问题。例如，通过马尔科夫模型获得语言模型，通过条件随机场CRF进行词性标注。如果你去看StandFord的NLP工具，里面处理问题的早期方法，都是这类方法。
+
+3. 当深度学习在图像识别领域得到快速发展时，人们也开始将深度学习应用于NLP领域。
+
+   首先是**Word Embedding**。它可以看成是对『单词特征』提取得到的产物，它也是深度学习的副产物。随后，人们又提出了**Word2Vec**，GloVe等类似预训练的词向量，作为对单词的特征抽象，输入深度学习模型。
+
+   其次是**RNN**。RNN使得神经网络具有时序的特性，这种特性非常适合解决NLP这种词与词之间有顺序的问题。但是，深度学习存在梯度消失问题，这在RNN中尤其明显，于是人们提出了**LSTM/GRU**等技术，以解决这种梯度消失问题。在2018年以前，LSTM和GRU在NLP技术中占据了绝对统治地位。
+
+   当时RNN有个致命的问题，就是训练慢，无法并行处理，这限制了其发展。于是人们想到了是否可以用CNN替代RNN，以解决这个问题。于是人们提出了用**1D CNN**来解决NLP问题。但是这种方式也有个明显问题，就是丢掉了RNN的时序优势。
+
+   除了时序问题，我们还不得不提另外一个关键问题，即**注意力Attention**。Attention最早用于图像识别领域，然后再被用于NLP领域。
+
+   有了Attention技术，我们急需新技术既可以保证并行处理，又可以解决时序问题。于是**Transformer**腾空出世。它也是BERT的基础之一。
+
+   除此之外，**ELMO**提出的预训练双向语言模型以及**GPT**提出的单向Tranformer也是最新双向Transformer发展的基础，在《Attention Is All You Need》一文，Transformer上升到另外一个高度。
+
+   **BERT**正是综合以上这些优势提出的方法（预训练 + Fine-Tuning + 双向Transformer，再加上其两个创新点：Masked语言模型、Next Sentence Prediction），可以解决NLP中大部分问题。
 
 ## 参考文献与推荐阅读
 
@@ -1134,30 +1141,30 @@ BERT的横空出世基本也是NLP模型不断发展、演变的结果，如参�
 4.  《[深度学习中的注意力机制(2017版)](https://blog.csdn.net/malefactor/article/details/78767781 "深度学习中的注意力机制(2017版)")》，张俊林
 5.  Transformer原始论文：[Attention Is All You Need](https://arxiv.org/pdf/1706.03762 "Attention Is All You Need")，相信读完本文再读原始论文就没啥问题了，另 这是[李沐的解读](https://www.bilibili.com/video/BV1pu411o7BE/?spm_id_from=333.999.top_right_bar_window_history.content.click&vd_source=02a7bf3dbb14104d4c31a9017ba6bd89 "李沐的解读")
 6.  还是Jay Alammar写的[图解transformer](https://jalammar.github.io/illustrated-transformer "图解transformer")（如果打不开英文原文，可看：[翻译版1](https://blog.csdn.net/qq_36667170/article/details/124359818 "翻译版1")、[翻译版2](https://blog.csdn.net/yujianmin1990/article/details/85221271 "翻译版2")）
-  
+
 7.  [a\_journey\_into\_math\_of\_ml/03\_transformer\_tutorial\_1st\_part](https://github.com/aespresso/a_journey_into_math_of_ml/blob/master/03_transformer_tutorial_1st_part/transformer_1.ipynb "a_journey_into_math_of_ml/03_transformer_tutorial_1st_part")，这篇关于Transformer的文章，启发我细究权重矩阵如何而来
 8.  《[说说NLP中的预训练技术发展史：从Word Embedding到Bert模型](https://www.julyedu.com/questions/interview-detail?kp_id=30&cate=NLP&quesId=3008 "说说NLP中的预训练技术发展史：从Word Embedding到Bert模型")》，张俊林
-  
+
 9.  [深度学习：前沿技术-从Attention,Transformer,ELMO,GPT到BERT](http://www.bdpt.net/cn/2019/01/22/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF-%E4%BB%8Eattentiontransformerelmogpt%E5%88%B0bert/ "深度学习：前沿技术-从Attention,Transformer,ELMO,GPT到BERT")
-  
+
 10.  [自然语言处理中的Transformer和BERT](https://zhuanlan.zhihu.com/p/53099098 "自然语言处理中的Transformer和BERT")
-  
+
 11.  [超细节的BERT/Transformer知识点](https://zhuanlan.zhihu.com/p/132554155 "超细节的BERT/Transformer知识点")
-  
+
 12.  [《The Illustrated GPT-2 (Visualizing Transformer Language Models)](https://link.zhihu.com/?target=https%3A//jalammar.github.io/illustrated-gpt2/ "《The Illustrated GPT-2 (Visualizing Transformer Language Models)")》（[翻译版1](https://lolitasian.blog.csdn.net/article/details/125529598 "翻译版1") [翻译版2](https://zhuanlan.zhihu.com/p/79714797 "翻译版2")）
-  
+
 13.  [Transformer结构及其应用详解--GPT、BERT、MT-DNN、GPT-2](https://zhuanlan.zhihu.com/p/69290203 "Transformer结构及其应用详解--GPT、BERT、MT-DNN、GPT-2")
-  
+
 14.  [BERT原始论文及与一翻译版本的对照阅读](https://www.yiyibooks.cn/nlp/bert/main.html "BERT原始论文及与一翻译版本的对照阅读")，注意翻译有些小问题，所以建议对照阅读
-  
+
 15.  [NLP陈博士：从BERT原始论文看BERT的原理及实现](https://www.julyedu.com/video/play/264/7858 "NLP陈博士：从BERT原始论文看BERT的原理及实现")
-  
+
 16.  [NLP陈博士：Transformer通用特征提取器](https://www.julyedu.com/video/play/264/8444 "NLP陈博士：Transformer通用特征提取器")，和上面这两个公开课值得仔细学习
-  
+
 17.  [CNN笔记：通俗理解卷积神经网络](https://blog.csdn.net/v_JULY_v/article/details/51812459 "CNN笔记：通俗理解卷积神经网络")，July
-  
+
 18.  [如何通俗理解Word2Vec](https://blog.csdn.net/v_JULY_v/article/details/102708459 "如何通俗理解Word2Vec")
-  
+
 19.  [如何理解反向传播算法BackPropagation](https://www.julyedu.com/question/big/kp_id/26/ques_id/2921 "如何理解反向传播算法BackPropagation")
 20.  [词向量经典模型：从word2vec、glove、ELMo到BERT](https://blog.csdn.net/xiayto/article/details/84730009 "词向量经典模型：从word2vec、glove、ELMo到BERT")
 21.  《预训练语言模型》，电子工业出版社

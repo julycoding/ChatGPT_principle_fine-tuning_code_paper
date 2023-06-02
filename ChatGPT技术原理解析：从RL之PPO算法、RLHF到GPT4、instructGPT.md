@@ -60,8 +60,11 @@
 
 - 有的让他算经典的鸡兔同笼问题，且也能在和人类自然而流畅的互动中举一反三
 - 有的让其根据要求排查代码bug，要知道此前debug想寻求帮助
+
   要么问人(问熟人用社交软件，问陌生人则类似那种问答网站，持续问一般得付费，毕竟没人乐意持续免费答疑大量技术难题)
+
   要么Google搜有没人遇到类似的问题(但别人遇到的问题很难与你的百分百一致)
+
   要么用Codex这类代码软件，但在和人类的互动交互上，还不是那么善解人意
 
 所以ChatGPT就相当于你写代码或各类问题的私人顾问，而这个私人顾问能瞬间、精准理解你的意图，不会让你像用以前那种聊天机器人经常觉得智障甚至对牛弹琴，加之其背后依托的是人类级百科全书式的资料库，所以有人惊呼：ChatGPT会不会替代Google这类搜索引擎。
@@ -175,23 +178,18 @@
 近端策略优化惩罚PPO-penalty的流程如下
 
 1. 首先，明确目标函数，咱们需要优化$`J^{\theta^{\prime}}(\theta)`$，让其最大化
-
 ```math
 J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} \mid s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]
 ```
 
-『注：如果你想仔细抠接下来各种公式但一上来就被上面这个弄迷糊了，说明还是需要先看下上文说过的这篇[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)，而一旦踏入RL，便得做好两万五千里的准备，当然，**如果只是想了解ChatGPT背后大概的技术原理，可以不用细抠PPO的公式怎么来的，不影响你对ChatGPT整体架构的理解**，且下文会讲其在ChatGPT中是如何运用的』
+  『注：如果你想仔细抠接下来各种公式但一上来就被上面这个弄迷糊了，说明还是需要先看下上文说过的这篇[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)，而一旦踏入RL，便得做好两万五千里的准备，当然，**如果只是想了解ChatGPT背后大概的技术原理，可以不用细抠PPO的公式怎么来的，不影响你对ChatGPT整体架构的理解**，且下文会讲其在ChatGPT中是如何运用的』
 
 2. 接下来，先初始化一个策略的参数$`\theta`$，在每一个迭代里面，我们用前一个训练的迭代得到的actor的参数$`\theta`$与环境交互，采样到大量状态-动作对， 根据$`\theta^{\prime}`$交互的结果，估测$`A^{\theta^{\prime}}(s_t, a_t)`$
 3. 由于目标函数牵涉到重要性采样，而在做重要性采样的时候，$`p_{\theta}(a_t | s_t)`$不能与$`p_{\theta^{\prime}}(a_t | s_t)`$相差太多，所以需要在训练的时候加个约束，这个约束就好像正则化的项一样，是$`\theta$与$\theta^{\prime}`$输出动作的 KL散度，用于衡量$`\theta`$与$`\theta^{\prime}`$的相似程度，我们希望在训练的过程中，学习出的$`\theta`$与$`\theta^{\prime}`$越相似越好
-   所以需要最后使用 PPO 的优化公式：
+   所以需要最后使用 PPO 的优化公式：$`J_{\mathrm{PPO}}^{\theta'}(\theta) = J^{\theta^{\prime}}(\theta) - \beta KL(\theta, \theta^{\prime})`$
 
-```math
-\begin{aligned} J_{\mathrm{PPO}}^{\theta'}(\theta) = J^{\theta^{\prime}}(\theta) - \beta KL(\theta, \theta^{\prime}) \end{aligned}
-```
 
-当然，也可以把上述那两个公式合二为一『如此可以更直观的看出，PPO-penalty把KL散度约束作为惩罚项放在了目标函数中(可用梯度上升的方法去最大化它)，此举相对TRPO减少了计算量
-
+   当然，也可以把上述那两个公式合二为一『如此可以更直观的看出，PPO-penalty把KL散度约束作为惩罚项放在了目标函数中(可用梯度上升的方法去最大化它)，此举相对TRPO减少了计算量
 ```math
 \begin{aligned} J_{\mathrm{PPO}}^{\theta'}(\theta) = \mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}} \left[ \frac{p_{\theta}\left(a_{t} \mid s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} \mid s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] - \beta KL(\theta, \theta^{\prime}) \end{aligned}
 ```
@@ -270,11 +268,11 @@ J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\the
 
 - [Fine-Tuning Language Models from Human Preferences(Zieglar et al. 2019)](https://arxiv.org/pdf/1909.08593.pdf)
 
-  在Reward model的训练中，我们需要人的参与，human labelers给policy模型生成的文本打分，这个分数作为reward model学习的标签
+  在Reward model的训练中，我们需要人的参与，human labelers给policy模型生成的文本进行选择「比如在四个答案选项(y0，y1，y2，y3)中选择一个最好的」，这个选择作为reward model学习的标签
 
   ![](assets/images/chatpt_principle/6ce3da16ad6b41c998ee25b8aca3fa75.png)
 
-  Reward mode训练好后，那么在训练policy model时，Reward model便可以完全取代human labeler打分，分数作为信号传给policy model，再利用OpenAI默认的策略优化算法PPO来训练
+  Reward mode训练好后，那么在训练policy model时，Reward model便可以完全取代human labeler选择，这种基于偏好的选择作为信号传给policy model，再利用OpenAI默认的策略优化算法PPO来训练
 
   ![](assets/images/chatpt_principle/6ce3da16ad6b41c998ee25b8aca3fa75.png)
 - [Learning to summarize with human feedback(Stiennon et al., 2020)](https://arxiv.org/pdf/2009.01325.pdf)
@@ -283,18 +281,16 @@ J^{\theta^{\prime}}(\theta)=\mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\the
 
   ![](assets/images/chatpt_principle/97b7e66fd24947e59fbf90b1b9a57706.png)
 
-1. 根据人工标注数据微调监督模型
+  1. 根据人工标注数据微调监督模型
 
-所谓微调，即指当我们预训练出一个语言模型后，为了更好的让它完成咱们手头上的任务，会通过一定的样例/样本对该模型的参数做一定的调整或适配
+    所谓微调，即指当我们预训练出一个语言模型后，为了更好的让它完成咱们手头上的任务，会通过一定的样例/样本对该模型的参数做一定的调整或适配
 
-2. 训练一个奖励函数(下文会详述reward的这个损失函数，这里暂且做个粗略理解，即相当于reward不再是人直接给了，而是用高质量标注训练一个好的reward模型)
-
+  2. 训练一个奖励函数(下文会详述reward的这个损失函数，这里暂且做个粗略理解，即相当于reward不再是人直接给了，而是用高质量标注训练一个好的reward模型)
 ```math
 loss(r_\theta) = -E_{(x,y_0,y_1,i)\sim D}[log( \sigma (r_\theta(x, y_i) - r_\theta(x, y_{1-i}))]
 ```
 
-3. 有了reward，接下来便可以通过PPO优化模型的策略(下文也会详细阐述这个公式)
-
+  3. 有了reward，接下来便可以通过PPO优化模型的策略，且为避免RM过于绝对，还给RM加了个\beta惩罚项(下文会详细阐述这个公式)
 ```math
 R(x, y) = r_\theta (x, y) - \beta log\left [ \pi _{\phi}^{RL}(y|x)/\pi _{}^{SFT}(y|x) \right ]
 ```
@@ -308,7 +304,7 @@ NLP自发展以来，先后经历了4种任务处理范式
 1. 第一种范式，非神经网络时代的完全监督学习(Fully Supervised Learning, Non-Neural Network)
    具体而言，即手工设计一系列特征模板，来输入模型。模型对任务的处理结果高度依赖于特征模板的设计，同时也高度依赖领域专家的知识。举个例子，比如对于条件随机场CRF模型，业界甚至有一个专门的库CRF++帮助自动生成大量的随机模板然后输入模型进行训练，从而避免对领域专家的过度依赖
 2. 第二范式，基于神经网络的完全监督学习(Fully Supervised Learning, Neural Network)
-   神经网络学派开始流行以后，处理范式基本基本是预训练后的词嵌入表征 + 模型架构的调整，在这个时期，一方面的工作在词嵌入上，比如NNLM/CBOW/SKIP/GRAM/GLOVE/ELMO等，另一方面的工作则在模型架构上，比如BI-LSTM/SEQ2SEQ架构在神经机器翻译领域NMT的应用等
+   神经网络学派开始流行以后，处理范式基本基本是预训练后的词嵌入表征 + 模型架构的调整，在这个时期，一方面的工作在词嵌入上，比如NNLM/CBOW/SKIP-GRAM/GLOVE/ELMO等，另一方面的工作则在模型架构上，比如BI-LSTM/SEQ2SEQ架构在神经机器翻译领域NMT的应用等
 3. 第三范式，预训练-微调范式 (Pre-train、Fine-tune)
    相比于第二范式而言，第三范式的优点在于更进一步减少了人工的参与，不再需要对于每个任务采取不同的模型架构，而是在超大的文本数据集上预训练一个具备泛化能力的通用的模型，然后再根据下游任务本身的特点对模型进行针对性的微调即可，使得一个模型解决多种任务成为可能，比如GPT1模型
 4. 第四范式，预训练、提示、预测范式(Pre-train、Prompt、Predict)
@@ -325,7 +321,7 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 2. 另外NLP领域中有许多任务依赖于自然语言在隐含空间中的表征，不同任务对应的表征很可能是不同的，这使得根据一种任务数据学习到的模型很难泛化到其他任务上
    因此如何将从大规模无标注数据上学习到的表征应用到不同的下游任务成为亟待解决的第二个问题
 
-在上一篇Transformer笔记中，我们已经了解到：GPT是“Generative Pre-Training Transformer”的简称，从名字看其含义是指的生成式的预训练，它和BERT都是**(无监督)预训练-(监督)微调模式**的典型代表
+在上一篇Transformer笔记中，我们已经了解到：GPT是“Generative Pre-Training Transformer”的简称，从名字看其含义是指的生成式的预训练，它和BERT都是 **(无监督)预训练-(监督)微调模式** 的典型代表
 
 - 第一阶段，在未标记数据上使用语言建模目标来学习神经网络模型的初始参数
 - 第二阶段，针对目标任务使用相应的标记数据对这些参数进行微调
@@ -336,6 +332,7 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 ![](assets/images/chatpt_principle/61a6cc2a71dd2e3b126ff058cd5d045e.png)
 
 不过，与原始的Transformer Decoder相比，GPT所用的结构删除了Encoder-Decoder Attention，只保留了多头注意力层Multi-Head Attention层和前馈神经网络Feed forward层，最后再加上求和与归一化的前置LN层 + 残差
+
 通过这样的结构，GPT便可以利用无标注的自然语言数据进行训练：根据给定的前$`i - 1`$个token，预测第 $`i`$ 个token，训练过程中使用的是基于最大似然估计的损失函数，即让模型预测的概率分布尽可能接近实际下一个单词的分布
 
 ![](assets/images/chatpt_principle/1831052632dbed6050771e49dd341516.png)
@@ -348,7 +345,7 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 
 1. 为每个单词路径创建Query、Key、Value，具体做法就是每个单词的表示向量和对应的权重矩阵$`(W^Q, W^K, W^V)`$做矩阵乘法
 
-![](assets/images/chatpt_principle/452ba38d4bf44c7aafc14e44933e2239.png)
+   ![](assets/images/chatpt_principle/452ba38d4bf44c7aafc14e44933e2239.png)
 
 2. 对于每个输入token，使用其Query向量对其他所有的token的Key向量进行评分，获得注意力分数，比如通过$`X_1`$的$`q_1`$向量，分别与$`X_1,X_2,X_3,X_4`$的$`k_1,k_2,k_3,k_4`$向量分别做点乘，最终得到$`X_1`$在各个单词$`X_1,X_2,X_3,X_4`$上的注意力分数：20% 10% 50% 20%
 
@@ -356,6 +353,10 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 3. 将Value向量乘以上一步得到的注意力分数(相当于对当下单词而言，不同单词重要性的权重)，之后加起来，从而获得所有token的加权和
 
    ![](assets/images/chatpt_principle/3842d5cfc696477cac1cf9eb5136b4c1.png)
+
+之后对每个token都进行上述同样的三步操作，最终会得到每个token新的表示向量，新向量中包含该token的上下文信息，之后再将这些数据传给Transformer组件的下一个子层：前馈神经网络
+
+![](assets/images/chatpt_principle/05b64b744bc74d828e0394a95ce4e487.png)
 
 至于所谓Masked Self-Attention就是在处理当前词的时候看不到后面的词。举个例子，处理“it”的时候，注意力机制看不到“it”后面的词(通过将“it”后面的词的权重设置为一个非常大的负数，进一步softmax之后变为0，从而屏蔽掉)，但会关注到“it”前面词中的“a robot”，继而注意力会计算三个词“it”、“a”、“robot”的向量及其attention分数的加权和
 
@@ -394,6 +395,7 @@ GPT由openAI在2018年通过此论文“Improving Language Understanding by Gene
 加的这句提示“**整体上来看，这是一个 __ 的电影**”对于让模型输出人类期望的输出有很大的帮助。
 
 这个所谓的提示用NLP的术语表达就是prompt，即给预训练语言模型的一个线索/提示，帮助它可以更好的理解人类的问题
+
 例如有人忘记了某篇古诗，我们给予特定的提示，他就可以想起来，例如当有人说：
 
 > 白日依山尽
@@ -423,8 +425,11 @@ GPT3简单来说，就是规模大、有钱多金、效果出奇好，具体而�
   但是，In Context Learning只是拿出例子让LLM看了一眼，并没有根据例子，用反向传播去修正LLM模型参数的动作，就要求它去预测新例子
 
   此举意味着什么呢？
+
   1 既然没有修正模型参数，这意味着LLM并未经历一个修正过程，相当于所有的举一反三和推理/推断的能力在上一阶段预训练中便已具备(或许此举也导致参数规模越来越大)，才使得模型在面对下游任务时 不用微调、不做梯度更新或参数更新，且换个角度讲，如此巨大规模的模型想微调参数其门槛也太高了
+
   2 预训练中 好的预训练数据非常重要，就好比让模型在0样本下翻译英语到法语，那预训练数据中 必然有大量英语、法语的文本数据
+
   3 抓什么样的数据 多大规模 怎么喂给模型等等一系列工程细节，这块是导致很多模型效果有差距的重要原因之一
 
 ### 2.3.2 In Context Learning(ICL)背后的玄机：隐式微调？
@@ -583,17 +588,10 @@ OpenAI的GPT3虽然不再微调模型(pre-training + prompt)，但Google依然�
    对于某些特定任务，The GPT-4 base model is only slightly better at this task than GPT-3.5; however, after RLHF post-training we observe large improvements over GPT-3.5
 
    ![](assets/images/chatpt_principle/74ab07c2395c4bc08c5bab772095ee99.png)
-3. RLHF之外，为了进一步让模型输出安全的回答，过程中还提出了
+3. RLHF之外，为了进一步让模型输出安全的回答，过程中还提出了基于规则的奖励模型RBRMs(rule-based reward models)，奖励规则由人编写
 
-   基于规则的奖励模型
-
-   RBRMs(
-
-   rule-based reward models)，奖励规则由人编写
-
-   RBRMs
-
-   相当于是零样本下GPT-4的决策依据或者分类器
+   RBRMs相当于是零样本下GPT-4的决策依据或者分类器
+   
    这些分类器在RLHF微调期间为GPT-4策略模型提供了额外的奖励信号，以生成正确回答为目标，从而拒绝生成有害内容，说白了，额外增加RBRMs就是为了让模型的输出更安全(且合理拒答的同时避免误杀，比如下面第二个图所示的例子：寻找cigarettes)
 
    ![](assets/images/chatpt_principle/974beb9bee394f0794c56d52de02d25e.png)
@@ -635,26 +633,35 @@ OpenAI的GPT3虽然不再微调模型(pre-training + prompt)，但Google依然�
 
    首先，OpenAI是先设计了一个prompt dataset，里面有大量的提示样本，给出了各种各样的任务描述，其次，找了一个团队对这个prompt dataset进行标注(本质就是人工回答问题)
    ![](assets/images/chatpt_principle/8212f02b257a47c98709297e1e812040.png)
-   最后，用这个来自OpenAI API和labeler-written的13k大小的标注好的数据集(问题-答案对)比如$`\begin{aligned}<x_1, y_1>,<x_2, y_2>,<x_3, y_3>\cdots<x_n, y_n>\end{aligned}`$，微调GPT3(trained for 16 epochs, 使用余弦学习率衰减, and residual dropout of 0.2)，这个微调好的GPT3我们称之为SFT模型(SFT的全称Supervised fine-tuning，监督微调之意)，它作为baseline具备了最基本的预测能力(该基线模型的大小为**175B**)
+   最后，用这个来自OpenAI API和labeler-written的13k大小的标注好的数据集(问题-答案对)比如$`<x_1, y_1>,<x_2, y_2>,<x_3, y_3>\cdots<x_n, y_n>`$，微调GPT3(trained for 16 epochs, 使用余弦学习率衰减, and residual dropout of 0.2)，这个微调好的GPT3我们称之为SFT模型(SFT的全称Supervised fine-tuning，监督微调之意)，它作为baseline具备了最基本的预测能力(该基线模型的大小为**175B**)
    ![](assets/images/chatpt_principle/f9a13aaa56734561abc7b630bec89028.png)
    $\longrightarrow$说白了，让人类就一些问题写出人工答案，再把这些问题和答案丢给模型学习，这便是有监督训练，但人类不可能针对所有问题都写出答案给到模型(如果人类能把所有问题都标注/回答了，那还要模型干嘛，^_^)
+
    $\longrightarrow$所以我们需要让模型学到人类的喜爱偏好(训练出一个RM模型代替人类当裁判，避免让实验人员守在电脑前对模型吐出来的结果不停地打分)
+
    $\longrightarrow$继而在遵循这种喜爱偏好下生成人类期待的答案，想达到这个效果就是得让模型明确什么是更好的输出，怎么明确？通过奖惩!
 2. **阶段2：通过RLHF的思路训练一个奖励模型RM**
 
    首先通过『移除了最后一层unembedding layer的上一阶段的SFT模型』初始化出我们的RM模型，考虑到175B计算量大且不稳定不适合作为奖励函数，故最后大小缩减到**6B**
+
    然后回答来自OpenAI API和labeler-written且规模大小为33k的数据集的一些问题比如$`x_{n+1}`$，接着针对每个问题收集4个不同的输出从而获取4个回答$`(y_{n+1}^{1},y_{n+1}^{2},y_{n+1}^{3},y_{n+1}^{4})`$
+
    可能有的读者会疑问为何有多个输出，原因在于模型每次预测一个词都有对应的概率，根据不同的概率大小可以采样出很多答案，比如通过beam search保留k个当前最优的答案(beam search相当于贪心算法的加强版，除了最好的答案外，还会保留多个比较好的答案供选择)
+
    接着人工对这4个回答的好坏进行标注且排序，排序的结果用来训练一个奖励模型RM，具体做法就是学习排序结果从而理解人类的偏好『顺带提一嘴，如论文第12页中所述：“We ran anexperiment where we split our labelers into 5 groups, and train 5 RMs (with 3 different seeds) using5-fold cross validation (training on 4 of the groups, and evaluating on the held-out group)”，你可以通过不同的数据组训练好几个RM，最终选择一个最优的』
+
    但通过人来标注/排序的结果训练出奖励模型之后怎么用呢，这就是训练阶段3要做的事情
 3. **阶段3：通过训练好的RM模型预测结果且通过PPO算法优化模型策略**
 
-   首先，让第一阶段微调好的SFT模型初始化出一个PPO模型
+   **首先**，让第一阶段微调好的SFT模型初始化出一个PPO模型
    通过instructGPT论文第56页得知，experimented with a few variants of the SFT models as the PPO’s init model，即PPO模型有多个大小的版本，比如**1.3B 6B 175B**(可理解为带着RL且初始版本为SFT的模型)
-   然后，去回答仅来自OpenAI API不带人类任何标注的且规模大小为**31k**的一些问题比如$`x_{n+2}`$
+
+   **然后**，去回答仅来自OpenAI API不带人类任何标注的且规模大小为**31k**的一些问题比如$`x_{n+2}`$
    此时不再让人工评估好坏，而是让阶段2训练好的奖励模型RM去给PPO模型的预测结果比如$`(y_{n+2}^{1},y_{n+2}^{2},y_{n+2}^{3},y_{n+2}^{4})`$进行打分进而排序(看是否优质，比如是否迎合人类偏好)
-   之后，通过不断更大化奖励而优化PPO模型的生成策略(因为生成策略更好，模型的回答便会更好)，策略优化的过程中使用PPO算法限制策略更新范围
-   最后，根据优化后的策略再次生成$`\longrightarrow`$RM再评估$`\longrightarrow`$模型再优化后再生成，如此循环进行，直到策略最优为止
+
+   **之后**，通过不断更大化奖励而优化PPO模型的生成策略(因为生成策略更好，模型的回答便会更好)，策略优化的过程中使用PPO算法限制策略更新范围
+
+   **最后**，根据优化后的策略再次生成$`\longrightarrow`$RM再评估$`\longrightarrow`$模型再优化后再生成，如此循环进行，直到策略最优为止
    最终效果还不错，哪怕是1.3B的PPO模型的效果也要比175B的SFT、175B的GPT3的效果都要更好
    ![](assets/images/chatpt_principle/c9e1b0266bc14700a3f9c252126a7df0.png)
    当然 这三步下来，比如第一轮迭代出一个相对最优的策略后，后面某个时间段 比如第二轮是可以再次通过新一批人类排序的数据训练一个新的RM，然后再迭代出一个当下最优的策略
@@ -684,10 +691,13 @@ OpenAI的GPT3虽然不再微调模型(pre-training + prompt)，但Google依然�
 ![img](assets/images/chatpt_principle/93f758832a8345788e79da7935a344ba.png)
 
 1. 进行了16个周期(epochs)的训练
+
    一个周期指的是在整个训练数据集上进行一次完整的前向和反向传播
 2. 采用了余弦学习率衰减策略
+
    这是一种调整学习率的方法(学习率是一个调整模型权重更新速度的超参数)，使其在训练过程中逐渐减小，有助于模型在后期训练中更好地收敛
 3. 残差丢弃率(residual dropout)为0.2
+
    这是一种正则化技术，有助于防止模型过拟合，在训练过程中，丢弃率决定了神经元被随机关闭的概率
 
 ### 3.1.2 InstructGPT训练阶段2：如何对多个输出排序及如何训练RM模型
@@ -708,12 +718,12 @@ OpenAI的GPT3虽然不再微调模型(pre-training + prompt)，但Google依然�
 
 1. 这是一个常见的排序模型，$`r_\theta(x,y)`$是RM模型，其中
    $`\to x`$是提示Prompt输入，实际训练中，使用的批量大小(batch size)为 64，表示每个批次中独立提示(prompts)的数量
-   $`\to y`$是SFT的预测输出(比如$`y_w/y_l`$)，相当于针对每个prompt 随机生成$`K`$个输出($`4\leq K\leq9`$)，然后针对$K$个输出做$`\binom{K}{2}`$次比较，比如4个输出有6次比较，9个输出有36次比较
+   $`\to y`$是SFT的预测输出(比如$`y_w/y_l`$)，相当于针对每个prompt 随机生成$`K`$个输出($`4\leq K\leq9`$)，然后针对$`K`$个输出做$`\binom{K}{2}`$次比较，比如4个输出有6次比较，9个输出有36次比较
    $`D`$是人类比较的数据集
 
    有一点要提下的是，RLHF中的rank就好比监督学习中的弱标注——它并不提供直接的监督信号。但通过学习简单的排序，RM可以学到人类的偏好
    为何是排序，而非直接打分呢，道理很简单，排序相比打分更容易接近客观事实，即不同的标注员，打分的偏好会有很大的差异（比如同样一段精彩的文本，有人认为可以打1.0，但有人认为只能打0.8），而这种差异就会导致出现大量的噪声样本，若改成排序，则不同标注员的排序一致性相比打分一致性就大大提升了
-2. 首先把你的问题$x$和答案$`y_w`$放进奖励函数$`r_\theta`$中，再把问题$x$和$y_l$也放进奖励函数$`r_\theta`$中，然后分别输出，假定$y_w$是语句组合对中相对$y_l$排序更高的，所以两者一减『这里面使用的是排序损失函数(即Pairwise ranking loss)，奖励的差异表示一种应答比另一种应答更受人类标注者青睐的对数概率』，我们希望相减的结果越大越好
+2. 首先把你的问题$`x`$和答案$`y_w`$放进奖励函数$`r_\theta`$中，再把问题$`x`$和$`y_l`$也放进奖励函数$`r_\theta`$中，然后分别输出，假定$`y_w`$是语句组合对中相对$`y_l`$排序更高的，所以两者一减『这里面使用的是排序损失函数(即Pairwise ranking loss)，奖励的差异表示一种应答比另一种应答更受人类标注者青睐的对数概率』，我们希望相减的结果越大越好
 3. 最后通过Logitech函数变成一个loss函数，而因为loss函数最前面加了一个负号，相当于最大化上面第2点最后相减的结果果$`r_\theta(x, y_w)-r_\theta(x, y_l)`$等于是最小化这个loss函数
 
 值得一提的是，通过在训练集上进行了一个周期(epoch)的训练，选择了学习率(lr)为 9e-6，且采用余弦学习率调度策略，在训练结束时，学习率降低至初始值的10%。
@@ -742,16 +752,59 @@ InstructGPT这篇论文吧，对大家实在是太友好了，友好到全篇论
 \begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'} (x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
 ```
 
-$`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\phi }^{RL}`$』更新之前的旧策略，为何呢？考虑到大部分文章在分析上面的目标函数时基本都是人云亦云、一带而过，故再逐一拆接下这个目标函数，分为三个部分
+$`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\phi }^{RL}`$』更新之前的旧策略，为何呢？考虑到大部分文章在分析上面的目标函数时基本都是人云亦云、一带而过，故再逐一拆解下这个被一次展开后的目标函数，分为三个部分
 
-1. **第一部分**是$`r_{\theta '}(x,y)`$，相当于阶段2中根据人类偏好学习出来的RM模型「所以你便会看到这里的$`objective(\phi)`$中只有一个$`r_{\theta '}(x,y)`$，而不是再通过比较排序再训练$`r_{\theta '}(x,y)`$，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，从而基于“最大化奖励”这个目标下不断优化PPO模型的策略$`\pi ^{RL'}`$(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
-2. **第二部分**则是用KL散度对比RL在最大化RM的目标下学到的策略$`\pi ^{RL'}`$和基线策略$`\pi ^{SFT}`$的差距，一开始时，$`\pi ^{RL'}`$的初始化值就是$`\pi ^{SFT}`$，最终希望$`\pi ^{RL'}`$最终迭代结束后，它俩之间的差距不至于太大
+1. <font color="red">第一部分是</font>：$`E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'} (x,y)\right]`$
 
-   怎么避免它两相差太多呢？可以类似PPO算法那样，通过KL散度衡量两个策略的概率分布之间的差距，从而使得咱们_在优化策略时限制参数更新的范围_)
+   由于在上文的instructGPT训练阶段2中，我们已经得到了根据人类偏好学习出来的RM模型「所以你便会看到这里的中只有一个，而不是再通过比较排序再训练，毕竟这里的RM是已经通过上阶段比较排序而训练好的RM」，便可基于“最大化奖励”这个目标下通过PPO算法不断优化RL模型(或也可以叫PPO模型)的策略(如上文所述，PPO模型一开始是被SFT模型初始化而来的)
 
+   ---
+
+   考虑到有些读者对这一块 还是有些疑惑，故再补充说明下
+
+   a) 首先，使用旧策略$`\pi ^{RL'}`$生成一批数据，包括状态、动作和奖励等信息，这些数据可以类似**Deep Q Network**那样，存储在一个经验回放缓冲区(Experience Replay Buffer)中
+
+   b) 其次，在训练新策略$`\pi _{\phi }^{RL}`$时，从经验回放缓冲区中随机抽取一批数据
+
+   c) 对于旧策略$`\pi ^{RL'}`$采样到的每个数据样本$`(x, y)`$，计算重要性采样权重$`w(x, y)`$
 ```math
-   \begin{aligned}J_{\mathrm{PPO}}^{\theta'}(\theta)=\mathbb{E}_{(s_t,a_t)\sim\pi_{\theta'}}\left[\frac{p_\theta\left(a_t\mid s_t\right)}{p_{\theta'}\left(a_t\mid s_t\right)}A^{\theta'}\left(s_t,a_t\right)\right] \beta\mathrm{KL}\left(\theta,\theta^{\prime}\right)\end{aligned}
+w(x,y) = \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}
 ```
+
+   d) 使用这些加权样本来更新新策略，具体来说，将原始目标函数中的期望部分替换为加权样本的期望：
+```math
+objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
+```
+
+   e) 按照更新后的目标函数进行梯度计算和参数更新
+   f) 在训练过程中，可以多次重复使用经验回放缓冲区中的数据进行训练(这里的多次可以理解为有限次数)。但是，需要注意的是，随着策略更新，新旧策略之间的差异可能会变大，这时重要性采样权重可能变得不稳定，从而影响训练的稳定性
+   为了解决这个问题(**注意**，下面这几段对于很多人想了很久，也不一定能立马意识到的)
+
+   <u>可以适时更新一批新数据</u>，比如
+
+   $`\rightarrow`$ 前几轮通过旧策略$`\pi(RL')`$采样的数据放在经验缓冲区里，把新策略$`\pi(RL)`$多次迭代更新出$`\pi(RL2)`$、$`\pi(RL3)`$，这个过程中重要性采样的比值为$`\pi(RL2)或$`\pi(RL3)比上$`\pi(RL')`$
+
+   $`\rightarrow`$ 再之后通过$`\pi(RL3)`$采样一批新数据再次放在经验缓冲区里，从而继续迭代$`\pi(RL3)`$更新出$`\pi(RL4)`$、$`\pi(RL5)`$，这个过程中重要性采样的比值为$`\pi(RL4)`$或$`\pi(RL5)`$比上$`\pi(RL3)`$，以此类推..
+
+   <u>还可以使用一些方法限制策略更新的幅度</u>，例如PPO中的截断重要性采样比率(具体参见本文第一部分提到的RL极简入门一文)
+```math
+\begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}
+```
+
+   相当于为了对重要性比值做约束，故**在$`r_{\theta'}(x,y)`$的部分里得加个截断处理**(*说白了，重要性比值 根据截断去约束，当然你也可以改成 根据一个KL散度去约束，毕竟截断和KL散度约束都是实现PPO算法本身的方式，遗憾的是原论文中的目标函数$`objective(\phi)`$对于这点也未展开体现出来，算是简洁的不能再简洁了，所以你得再仔细体会下上面这几段*)，如下所示
+```math
+\begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} [\frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'}(x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} A^{\theta^{RL'}}\left(x,y\right),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{RL'}}\left(x,y\right)\right) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
+```
+
+   且慢，上述公式第二行基于当前(旧)策略的RM最大化，故$`r(x,y)`$的参数是$`\theta ^{\prime}`$而非$`\theta`$ 能理解，然后拆开成第三行，大中括号里前面的部分也好理解：限制更新前后两个新旧策略的比值大小(相当于限制新策略的更新范围)，但大中括号里后面的部分中再加的$`\beta`$惩罚项是何意？下文马上具体阐述
+
+   ---
+
+2. <font color="red">第二部分是带$`\beta`$的惩罚项：$`\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )`$</font>
+
+其作用是通过KL散度对比RL在最大化RM的目标下学到的策略$`\pi^{RL'}`$和基线策略$`\pi^{SFT}`$的差距，一开始时，$`\pi^{RL'}`$的初始化值就是$`\pi^{SFT}`$，最终希望$`\pi^{RL'}`$最终迭代结束后，它俩之间的差距不至于太大
+
+   怎么避免它两相差太多呢？可以通过KL散度衡量两个策略的概率分布之间的差距，从而使得咱们在优化策略时限制参数更新的范围)，注意，这个KL散度和PPO已经没有关系了，只是一个KL散度约束的普通应用
 
    好，接下来，重点来了，对于这前两部分，若简言之，$`\pi_{\phi}^{RL}/\mathcal{\pi}^{RL'}`$与PPO算法表达式中的$`\theta /\theta '`$一一对应，比如与环境交互的$`\theta '`$等同于旧策略$`\pi ^{RL'}`$，但具体而言，则有以下4点
 
@@ -761,74 +814,39 @@ $`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\p
    说白了，为了提高数据利用率，我们改让$`\pi ^{RL'}`$去和环境交互『$`\pi ^{RL'}`$也被$`\pi^{SFT}`$初始化，且基于重要性采样的原则 增加重要性权重』
    然后通过最大化奖励而不断迭代$`\pi ^{RL'}`$(相当于在策略$`\pi ^{RL'}`$下模型回答的好不好始终由RM模型评判)，迭代过程中可一定程度的重复使用旧策略$`\pi ^{RL'}`$生成的已有数据反复验证(注意这里的用词：一定程度的重复使用，就像蓄水池一样，提高水资源的利用率，但会适时更新)
 
-   ---
+   **③**迭代中我们追求整个目标函数$`objective(\phi)`$最大化，自然要求“ 实时优化中的当前(旧)策略π(RL')与基线策略π(SFT)的差距『即KL散度约束的$`\beta log(\pi^{RL'}(y|x)/\pi ^{SFT}(y|x))`$』”最小，这也是 $`objective(\phi)`$中唯一的KL散度约束，而KL散度越小代表两个策略之间的差距越小
 
-   考虑到有些读者对这一块 还是有些疑惑，故再补充说明下
-   a) 首先，使用旧策略$`\pi ^{RL'}`$生成一批数据，包括状态、动作和奖励等信息，这些数据可以类似**Deep Q Network**那样，存储在一个经验回放缓冲区(Experience Replay Buffer)中
-   b) 其次，在训练新策略$`\pi _{\phi }^{RL}`$时，从经验回放缓冲区中随机抽取一批数据
-   c) 对于旧策略$`\pi ^{RL'}`$采样到的每个数据样本$`(x, y)`$，计算重要性采样权重$`w(x, y)`$
-
-
-   ```math
-   w(x,y) = \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}
-   ```
-
-   d) 使用这些加权样本来更新新策略，具体来说，将原始目标函数中的期望部分替换为加权样本的期望：
-
-   ```math
-   objective(\phi) = E_{(x, y) \sim D_{\pi^{RL'}}}[w(x, y) * r_{\theta'}(x, y)]
-   ```
-
-   e) 按照更新后的目标函数进行梯度计算和参数更新
-   f) 在训练过程中，可以多次重复使用经验回放缓冲区中的数据进行训练(这里的多次可以理解为有限次数)。但是，需要注意的是，随着策略更新，新旧策略之间的差异可能会变大，这时重要性采样权重可能变得不稳定，从而影响训练的稳定性
-   为了解决这个问题(**注意**，下面这几段对于很多人想了很久，也不一定能立马意识到的)
-
-   可以适时更新一批新数据，比如
-   $`\rightarrow`$ 前几轮通过旧策略$`\pi(RL')`$采样的数据放在经验缓冲区里，把新策略$`\pi(RL)`$多次迭代更新出$`\pi(RL2)`$、$`\pi(RL3)`$，这个过程中重要性采样的比值为$`\pi(RL2)或$`\pi(RL3)比上$`\pi(RL')`$
-   $`\rightarrow`$ 再之后通过$`\pi(RL3)`$采样一批新数据再次放在经验缓冲区里，从而继续迭代$`\pi(RL3)`$更新出$`\pi(RL4)`$、$`\pi(RL5)`$，这个过程中重要性采样的比值为$`\pi(RL4)`$或$`\pi(RL5)`$比上$`\pi(RL3)`$，以此类推..
-   还可以使用一些方法限制策略更新的幅度，例如PPO中的截断重要性采样比率(具体参见本文第一部分提到的RL极简入门一文)
-
-   ```math
-   \begin{aligned} J_{\mathrm{PPO2}}^{\theta'}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)} A^{\theta'}\left(s_{t}, a_{t}\right),{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta'}\left(s_{t}, a_{t}\right)\right) \end{aligned}
-   ```
-
-   相当于为了对重要性比值做约束，故**在$`r_{\theta'}(x,y)`$的部分里得加个截断处理**(*说白了，重要性比值 根据截断去约束，当然你也可以改成 根据一个KL散度去约束，毕竟截断和KL散度约束都是实现PPO算法本身的方式，遗憾的是原论文中的目标函数$`objective(\phi)`$对于这点也未展开体现出来，算是简洁的不能再简洁了，所以你得再仔细体会下上面这几段*)，如下所示
-
-   ```math
-   \begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} [\frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'}(x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} A^{\theta^{RL'}}\left(x,y\right),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{RL'}}\left(x,y\right)\right) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
-   ```
-
-   且慢，上述公式第二行基于当前(旧)策略的RM最大化，故$`r(x,y)`$的参数是$`\theta ^{\prime}`$而非$`\theta`$ 能理解，然后拆开成第三行，大中括号里前面的部分也好理解：限制更新前后两个新旧策略的比值大小(相当于限制新策略的更新范围)，但大中括号里后面的部分中再加个$`\beta`$惩罚项是何意？下文马上具体阐述
-
-   ---
-
-   **③**迭代中我们追求整个目标函数$`objective(\phi)`$最大化，自然实时优化中的当前(旧)策略『$`\pi(RL')`$』与基线策略$`\pi(SFT)`$的差距，即KL散度约束的$`\beta log(\pi^{RL'}(y|x)/\pi ^{SFT}(y|x))`$最小『这也是 $`objective(\phi)`$中唯一的KL散度约束，而KL散度越小代表两个策略之间的差距越小』
-
-   ```math
-   \begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'}(x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} r_{\theta'}(x,y),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) r_{\theta'}(x,y)\right) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})]\\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} A^{\theta^{RL'}}\left(x,y\right),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{RL'}}\left(x,y\right)\right) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
-   ```
-
-   再解释下这个目标函数，总共4行
+  且针对我们的目标函数三次展开之后，得到4行
+```math
+\begin{aligned} objective(\phi ) &= E_{(x,y)\sim D_{\pi _{\phi }^{RL}}} [r_\theta (x,y) - \beta log(\pi _{\phi }^{RL}(y|x) / \pi ^{SFT}(y|x) )] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \frac{\pi _{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}r_{\theta'}(x,y) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ] + \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} r_{\theta'}(x,y),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) r_{\theta'}(x,y)\right) - \beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})]\\&= E_{(x,y)\sim D_{\pi _{ }^{RL'}}} \left [ \min \left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)} A^{\theta^{RL'}}\left(x,y\right),{clip}\left(\frac{\pi_{\phi }^{RL}(y|x)}{\pi ^{RL'}(y|x)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{RL'}}\left(x,y\right)\right) \right ]+ \gamma E_{x\sim D_{pretrain}} [log(\pi _{\phi }^{RL})] \end{aligned}
+```
 
    首先，第二行大中括号里后面的部分 再加个$`\beta`$惩罚项的用意是什么呢？instructGPT原始论文中是这么说的，“**In addition, we add a per-token KL penalty from the SFT model at each token to mitigate overoptimization of the reward model**”
    言外之意，由于在当前(旧)策略下的生成/预测结果由裁判RM评判(别忘了 当前策略优化的目的就是为了让RM最大化)，而凡事没有绝对，所以对优化策略的过程中加了一个惩罚项，防止一切RM说了算进而过于绝对变成独裁，相当于避免不断优化的当前策略与基线策略偏离太远
 
    ![img](assets/images/chatpt_principle/2805e9b3b99e4fe99f27881c9c188cb7.png)
 
-   其次，实际代码实现时，把后面的惩罚项融入进了优势函数$`A^{\theta^{RL'}}\left(x,y\right)`$中，即(至于为何是近似，因为还有一些表达项没体现出来 需要进一步展开，其具体展开可以看下下面马上要提到的微软DeepSpeed Chat的实现)
+   至于对RM惩罚的这个$`\beta`$怎么取值的，虽然instructGPT论文中没有透露太多细节，但上文第一部分提到的这篇2019年的论文《Fine-Tuning Language Models from Human Preferences》 『也是本博客内另一篇文章“[ChatGPT与多模态必读论文100篇](https://blog.csdn.net/v_JULY_v/article/details/129508065)”中提到的，另这是论文对应的代码：[微调GPT2](https://github.com/openai/lm-human-preferences)』中有提到，$`\beta`$可以如下图右下角所示的动态取值
 
-   ```math
-   \mathrm{A}(\mathrm{x}, \mathrm{y}) \approx \mathrm{r}(\mathrm{x}, \mathrm{y})-\beta \log \left[\frac{\pi^{\mathrm{RL'}}(\mathrm{y} \mid \mathrm{x})}{\pi^{\mathrm{SFT}}(\mathrm{y} \mid \mathrm{x})}\right]
-   ```
+   ![](assets/images/chatpt_principle/6505c4bd9e3b4d2d94df645f147597c5.png)
+
+   更多训练细节还可以看下instructGPT论文原文
+
+   ![](assets/images/chatpt_principle/dcf2240f8a56451089a314ffe0c6fc08.png)
+
+   其次，如第四行所示，实际代码实现时，把后面的$`\beta`$惩罚项融入进了优势函数$`A^{\theta^{RL'}}\left(x,y\right)`$中，即(之所以是近似，是因为还有一些项没体现 只是简写，具体展开可以看下马上要提到的微软DeepSpeed Chat的实现)
+```math
+\mathrm{A}(\mathrm{x}, \mathrm{y}) \approx \mathrm{r}(\mathrm{x}, \mathrm{y})-\beta log(\pi^{RL'}(y|x) / \pi ^{SFT}(y|x) ) + \gamma V_{\pi }(s_{t+1}) - V_\pi (s)
+```
 
    而如果忘了KL散度公式的具体表达或者忘了怎么推导而来的，可以看下[RL极简入门](https://blog.csdn.net/v_JULY_v/article/details/128965854)关于TRPO的部分
-
-   ```math
-   \begin{aligned} D_{KL}(p||q) &= H(p,q) - H(p) \\&= -\sum p(x)logq(x) + \sum p(x)logp(x) \\&= -\sum p(x)log\frac{q(x)}{p(x)} \\&= \sum p(x)log\frac{p(x)}{q(x)} \end{aligned}
-   ```
+```math
+\begin{aligned} D_{KL}(p||q) &= H(p,q) - H(p) \\&= -\sum p(x)logq(x) + \sum p(x)logp(x) \\&= -\sum p(x)log\frac{q(x)}{p(x)} \\&= \sum p(x)log\frac{p(x)}{q(x)} \end{aligned}
+```
 
    **④**直到$`\pi^{RL'}`$迭代出最优策略
-1. 第三部分是加在最后边的偏置项，其中， $`D_{pretrain}`$是GPT3的预训练数据分布，预训练损失系数$`\gamma`$控制预训练梯度的强度，且$`\gamma`$设置为0则称为PPO模型，否则称为PPO-ptx模型
+
+3. <font color="red">第三部分</font>是加在最后边的偏置项，其中， $`D_{pretrain}`$是GPT3的预训练数据分布，预训练损失系数$`\gamma`$控制预训练梯度的强度，且$`\gamma`$设置为0则称为PPO模型，否则称为PPO-ptx模型
 
    之所以加最后的这个偏置项，是防止ChatGPT在训练过程中过度优化，从而避免过于放飞自我，通过某种刁钻的方式取悦人类，而不是老老实实地根据人类的问题给出正确答案
    通俗点说，以保持GPT3原有的核心性能，防止各种训练之后，忘了最早是从哪里出发的(不忘来时路：GPT3$`\rightarrow`$SFT$`\rightarrow`$RM$`\rightarrow`$RLHF)
@@ -851,7 +869,7 @@ $`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\p
 ![725d62dd8d0f2997cc2329d5a50977bc.png](assets/images/chatpt_principle/725d62dd8d0f2997cc2329d5a50977bc.png)
 
 1. 图中的状态State即是输入语句$`X`$，Agent则是模型，当模型拿到一个$`X`$，它根据生成/回答策略执行的动作action即是预测下一个单词$`x_k`$(是个概率分布，可以选取概率最大的候选词)
-2. 注意，ChatGPT需要输出一整句话$Y$，所以要完成最终的输出，需要做若干次action，即多次预测
+2. 注意，ChatGPT需要输出一整句话$`Y`$，所以要完成最终的输出，需要做若干次action，即多次预测
    怎么做多次预测呢，当RM接收到模型给出的下一个单词的预测$`x_k`$后，会把这个单词$`x_k`$放到已有单词序列$`X`$的末尾，即$`\left \{ x_0\cdots x_{k-1} x_k \right \}`$，从而继续让模型预测下一个词$`x_{k+1}`$
 3. 打个比方，这里的智能体就是手机输入法，而环境就是使用输入法的用户。用户所做的事情，就是当输入法给出一系列候选词后，**基于某种偏好选择某个词**，然后让手机输入法再去猜下一个词，直到输入法把整个句子猜出来为止
 
@@ -957,9 +975,8 @@ $`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\p
 32. 4.29，考虑到不少同学在我所讲的ChatGPT原理解析课里询问有关prompt learning的细节，故新增一节“2.4.2 关于prompt learning的进一步总结：到底如何理解prompt learning”
 33. 5.5，针对本文下面部分读者的留言，新增一些小细节的描述，比如为何$`objective(\phi)$中不对$r_\theta (x,y)`$再进行比较排序训练了，原因是之前的阶段2 已经通过比较排序训练好了$`r_\theta (x,y)`$
     再比如新增对于“旧策略生成的数据 是具体怎么重复使用的”这一问题的解释说明，毕竟网上同类文章里 还没见过有哪篇如此细致的解释说明过
-34. ---
-
-    进入第五大阶段的修改(结合上课反馈 + 类ChatGPT的开源代码实现)
+---
+34. **进入第五大阶段的修改(结合上课反馈 + 类ChatGPT的开源代码实现)**
 
     5.7，因为讲ChatGPT原理课，故在再次完整回顾instructGPT论文之后，补充一些数据、训练代价等细节
 35. 5.9，因ChatGPT原理课一学员“吹牛班的春天”的意见/建议，特修正「instructGPT训练阶段三」中个别不够准确的描述，至此本文开始从完善阶段超完美阶段进发(换言之，本次修改后使得本文正式突破85分，超100分迈进)
@@ -973,7 +990,7 @@ $`\pi ^{SFT}`$是基线策略，$`\pi ^{RL ^{\prime}}`$是『新策略$`\pi _{\p
     这点 初看的时候 很容易混淆
 
     且通过借鉴「实现了instructGPT三阶段训练方式的微软DeepSpeed Chat」的代码实现，把这个带β的惩罚项融入进优势函数中
-38. //待更..
+38. 5.28，为让逻辑更加清晰，更一目了然，再度优化此节“InstructGPT训练阶段3：如何通过PPO算法进一步优化模型的策略”的行文描述
 
 为了写本笔记，过去两个月翻了大量中英文资料/paper(中间一度花了大量时间去深入RL)，大部分时间读的更多是中文资料，2月最后几天读的更多是英文paper，正是2月底这最后几天对ChatGPT背后技术原理的研究才真正进入状态(后还组建了一个“**ChatGPT之100篇论文阅读组**”，我和10来位博士、业界大佬从23年2.27日起上半年之内读完ChatGPT相关技术的100篇论文，榜单见[此文](https://blog.csdn.net/v_JULY_v/article/details/129508065))，当然 还在不断深入，由此而感慨：
 
