@@ -1027,10 +1027,11 @@ TRPO的问题在于把 KL 散度约束当作一个额外的约束，没有放在
 上述流程有一个细节并没有讲到，即$`\beta`$是怎么取值的呢，事实上，$`\beta`$是可以动态调整的，故称之为自适应KL惩罚(adaptive KL penalty)，具体而言
 
 * 先设一个可以接受的 KL 散度的最大值$`KL_{max}`$
-假设优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，**KL 散度值太大导致$`KL(\theta,\theta^{\prime})>KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过大(即学习率/步长过大)**，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太弱而没有发挥作用，**故增大惩罚把$`\beta`$增大**
+假设优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，**KL 散度值太大导致$`KL(\theta,\theta^{\prime})> KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过大(即学习率/步长过大)**，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太弱而没有发挥作用，**故增大惩罚把$`\beta`$增大**
+
 * 再设一个 KL 散度的最小值$`KL_{min}`$
   如果优化完$`J_{\mathrm{PPO}}^{\theta^{\prime}}(\theta)=J^{\theta^{\prime}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$以后，
-  KL散度值比最小值还要小导致$`KL(\theta ,\theta ^{\prime})<KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过小，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太强了，我们担心它只优化后一项，使$`\theta`$与$`\theta'`$一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
+  KL散度值比最小值还要小导致$`KL(\theta ,\theta ^{\prime})< KL_{max}`$，意味着$`\theta`$与$`\theta'`$差距过小，也就代表后面惩罚的项$`\beta \mathrm{KL}\left(\theta, \theta^{\prime}\right)`$惩罚效果太强了，我们担心它只优化后一项，使$`\theta`$与$`\theta'`$一样，这不是我们想要的，所以减小惩罚即减小$`\beta`$
 
 > 关于$`\beta`$具体怎么设置的？除了上面提到的自适应KL惩罚(adaptive KL penalty)，来自2017年发表的PPO论文
 >
@@ -1081,9 +1082,9 @@ $`{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t}
 
 ![](./assets/images/RL_simple_primer/1798baf5dba54e21a19508e82d407a8a.png)
 
-* 然后是$`{clip}`$括号外乘以$`A^{\theta '}(s_t,a_t)`$，如
-果$`A^{\theta '}(s_t,a_t)`$大于0，则说明这是好动作，需要增大$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta}(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最大不能超过$`(1+\varepsilon)`$；如
-果$`A^{\theta '}(s_t,a_t)`$小于0，则说明该动作不是好动作，  
+* 然后是$`{clip}`$括号外乘以$`A^{\theta '}(s_t,a_t)`$，如果$`A^{\theta '}(s_t,a_t)`$大于0，则说明这是好动作，需要增大$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta}(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最大不能超过$`(1+\varepsilon)`$  
+
+如果$`A^{\theta '}(s_t,a_t)`$小于0，则说明该动作不是好动作，  
 需要减小$`p_{\theta }(a_{t}|s_{t})`$，但$`\frac{p_{\theta }(a_{t}|s_{t})}{p_{\theta'}(a_{t}|s_{t})}`$最小不能小过$`(1-\varepsilon)`$
 
 >  最后把公式的两个部分综合起来，针对整个目标函数
