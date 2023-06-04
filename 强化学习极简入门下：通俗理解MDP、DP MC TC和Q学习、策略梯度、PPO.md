@@ -450,10 +450,10 @@ $`{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta'}\left(a_{t}
 则相当于第二部分是$`(1-\epsilon)*A^{\theta'}(s_t,a_t)`$，和第一部分$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)`$对比取更小值当然是原函数值： $`\frac{p_{\theta}(a_t|s_t)}{p_{\theta \prime}(a_t|s_t)}*A^{\theta \prime}(s_t,a_t)`$
 > ![](./assets/images/RL_simple_primer/0bb3ab43b467ce1071d28a89537abc9c.png)
 >
-> 反之，**如果** $`A^{\theta \prime}(s_t,a_t)`$ **小于0，则最终目标函数的取值为了更小则和** $`A^{\theta \prime}(s_t,a_t)`$**大于0时反过来**，毕竟加了个负号自然一切就不同了，为方便初学者一目了然，咱们还是把计算过程列出来，即
-> 
->+   如果$`A^{\theta'}(s_t,a_t)'小于0且$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}`$大于$`(1+\epsilon)`$
-则相当于第二部分是$`(1+\epsilon)*A^{\theta'}(s_t,a_t)`$，和第一部分$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)`$对比取更小值当然是原函数值： $`\frac{p_{\theta}(a_t|s_t)}{p_{\theta \prime}(a_t|s_t)}*A^{\theta \prime}(s_t,a_t)`$
+> 反之，**如果 $`A^{\theta \prime}(s_t,a_t)`$ 小于0，则最终目标函数的取值为了更小则和 $`A^{\theta \prime}(s_t,a_t)`$大于0时反过来**，毕竟加了个负号自然一切就不同了，为方便初学者一目了然，咱们还是把计算过程列出来，即
+>+  如果$`A^{\theta'}(s_t,a_t)`$小于0且$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}`$大于$`(1+\epsilon)`$
+则相当于第二部分是$`(1+\epsilon)*A^{\theta'}(s_t,a_t)`$，和第一部分$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)`$对比  
+取更小值当然是原函数值： $`\frac{p_{\theta}(a_t|s_t)}{p_{\theta \prime}(a_t|s_t)}*A^{\theta \prime}(s_t,a_t)`$
 >
 >+   如果$`A^{\theta'}(s_t,a_t)`$小于0且$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}`$小于$`(1-\epsilon)`$
 则相当于第二部分是$`(1-\epsilon)×A^{\theta'}(s_t,a_t)`$，和第一部分$`\frac{p_{\theta}(a_t|s_t)}{p_{\theta'}(a_t|s_t)}*A^{\theta'}(s_t,a_t)`$对比取更小值当然是$`(1-\epsilon)`$的截断值： $`(1-\epsilon )*A^{\theta \prime}(s_t,a_t)`$
@@ -611,13 +611,12 @@ RL里的细节、概念、公式繁多，想完全阐述清楚是不容易的，
 12.  1.28日，新增对MC和TD方法各自的阐述及两者的对比，优化对KL散度定义的描述，新增近端策略优化裁剪PPO-clip的关键代码
 13.  1.30日，新增马尔可夫决策的贝尔曼方程以及对应的计算图解，以方便一目了然
     简单阐述了下GPT2相比GPT的结构变化，以及完善丰富了下文末的参考文献与推荐阅读，比如增加图解GPT2、图解GPT3的参考文献
-14.  1.31日，为行文严谨，针对1.1.2节中关于马尔可夫奖励的部分
-    规范统一个别公式的大小写表示
-    补充状态$`s`$下奖励函数的定义$`R(s)=E[R_{t+1}|S_t=s]`$
-    修正回报公式的笔误$`G_t=R_{t+1}+\gamma \cdot R_{t+2}+\gamma ^2\cdot R_{t+3}+\gamma ^3\cdot R_{t+4}+\cdots `$
-    修正状态价值函数公式的笔误
-    且为形象起见，新增一个“吃饭-抽烟/剔牙”的例子以展示利用贝尔曼方程计算的过程
-
+14.  1.31日，为行文严谨，针对1.1.2节中关于马尔可夫奖 励的部分  
+    规范统一个别公式的大小写表示  
+    补充状态$`s`$下奖励函数的定义$`R(s)=E[R_{t+1}|S_t=s]`$  
+    修正回报公式的笔误$`G_t=R_{t+1}+\gamma \cdot R_{t+2}+\gamma ^2\cdot R_{t+3}+\gamma ^3\cdot R_{t+4}+\cdots `$  
+    修正状态价值函数公式的笔误  
+    且为形象起见，新增一个“吃饭-抽烟/剔牙”的例子以展示利用贝尔曼方程计算的过程    
     此外，且为通俗细致，针对1.1.3节中关于马尔科夫决策的部分
     拆解状态价值函数、动作价值函数的定义公式，拆解关于状态价值函数和动作价值函数之间联系的推导过程
 
