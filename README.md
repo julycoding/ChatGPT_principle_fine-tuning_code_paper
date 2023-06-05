@@ -2,7 +2,7 @@
  * @Author: zh2nlp 17888822698@163.com
  * @Date: 2023-06-05 15:09:17
  * @LastEditors: zh2nlp 17888822698@163.com
- * @LastEditTime: 2023-06-05 15:14:55
+ * @LastEditTime: 2023-06-05 15:19:23
  * @FilePath: \ChatGPT_principle_fine-tuning_code_paper\README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -53,6 +53,8 @@ July、七月ChatGPT原理课的十几位同学，他们是：@corleytd、@Edwar
 
 ## 本项目编写规范（初步）
 温馨提示：由于本项目中存在大量的LaTex公式, github 与 原生markdown 适配可能有所差别，故如果将本项目clone到本地阅读可能导致在如Typro 等编辑软件中会出现显示异常，我们建议在github网页中进行浏览。
+
+如果您在参与本项目内容贡献过程中遇到问题，可参考以下栏目，也可将新的解决方案或建议列在以下栏目中。
 
 ### 关于LaTex公式：
 由于Github对于Markdown 原生语法中LaTex公式解析存在的部分缺憾，导致使用Markdown语法书写的数学公式在github网页中展示会出现异常，特于此文档当前栏目记录一些常用的手法，仅供参考。
