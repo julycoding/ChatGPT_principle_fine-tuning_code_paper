@@ -128,7 +128,7 @@ Efficient sequence modeling综述包含sparse transformer、linear transformer(c
 
 第七部分 垂域版类ChatGPT(比如医疗GPT)和其它(11篇，总98篇)
 - Large Language Models Encode Clinical Knowledge​
-- Towards Expert-Level Medical Question Answering with Large Language Models继上篇论文提出medpalm之后，5月16日，Google Research和DeepMind发布了Med-PaLM 2，相比第一代最显著的改进是基座模型换成了Google的最新大模型PaLM2(据说有着340b参数，用于训练的token数达3.6万亿)图片: https://uploader.shimo.im/f/uCOKiF2Y6RUtfMse.png!thumbnail?accessToken=eyJhbGciOiJIUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE2ODk5NTM0NzAsImZpbGVHVUlEIjoiMndBbGRveXdsUFNSYW9BUCIsImlhdCI6MTY4OTk1MzE3MCwiaXNzIjoidXBsb2FkZXJfYWNjZXNzX3Jlc291cmNlIiwidXNlcklkIjo1OTEzMTU4fQ.wSgJfeYvh8lY-TvGiNLj8nKC6g1fMezws1USOqCl8i4
+- Towards Expert-Level Medical Question Answering with Large Language Models继上篇论文提出medpalm之后，5月16日，Google Research和DeepMind发布了Med-PaLM 2，相比第一代最显著的改进是基座模型换成了Google的最新大模型PaLM2(据说有着340b参数，用于训练的token数达3.6万亿)
 - ChatDoctor: A Medical Chat Model Fine-tuned on LLaMA Model using Medical Domain Knowledge医疗ChatDoctor论文
 - BloombergGPT: A Large Language Model for Finance金融BloombergGPT论文
 - Deep Residual Learning for Image RecognitionResNet论文，短短9页，Google学术被引现15万多
