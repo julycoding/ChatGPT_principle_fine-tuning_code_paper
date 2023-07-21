@@ -26,13 +26,13 @@ ChatGPT一经推出便火爆全球，为了彻底写清楚ChatGPT背后的所有
 
 July个人觉得也可以：“比如项目之一，可以先以我博客内部分文章 搬到GitHub上，然后维护修改旧的章节、扩写新的章节，再之后共同开发LLM对话机器人之类的项目”，于此便有了本GitHub：ChatGPT资源库(原理/微调/代码/论文)
 
-## Project planning
+## 100 papers
 第一部分 OpenAI/Google的基础语言大模型(11篇，总11篇)
 - Improving Language Understanding by Generative Pre-TrainingGPT原始论文
 - Language Models are Unsupervised Multitask LearnersGPT2原始论文  
 - Language Models are Few-Shot LearnersGPT3原始论文  
 - Training language models to follow instructions with human feedbackInstructGPT原始论文
-Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer19年10月，Google发布T5模型(transfer text to text transformer)，虽也基于transformer，但区别于BERT的编码器架构与GPT的解码器架构，T5是transformer的encoder-decoder架构
+Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer，19年10月，Google发布T5模型(transfer text to text transformer)，虽也基于transformer，但区别于BERT的编码器架构与GPT的解码器架构，T5是transformer的encoder-decoder架构
 - LaMDA: Language Models for Dialog Applications论文发布于22年1月，显示LaMDA的参数高达137B，用的transformer decoder架构21年5月，Google对外宣布内部正在研发对话模型LaMDA，基于transformer decoder架构
 Finetuned Language Models Are Zero-Shot Learners21年9月，Google提出FLAN大模型，其基于LaMDA-PT做Instruction Fine-Tuning
 - PaLM: Scaling Language Modeling with Pathways22年3月，Google的Barham等人发布了Pathways系统，用于更高效地训练大型模型
